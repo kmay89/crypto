@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — Quantum Vault</title>
+  <meta name="robots" content="noindex">
+  <style>
+    :root {
+      --bg-deep: #0a0a0f;
+      --accent-cyan: #00f5ff;
+      --accent-violet: #8b5cf6;
+      --text-primary: #ffffff;
+      --text-secondary: #8888aa;
+      --text-dim: #555566;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', monospace;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 5rem;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+    }
+    p { color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 2rem; max-width: 400px; }
+    a {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      border: 2px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      text-decoration: none;
+      font-family: inherit;
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: all 0.3s;
+    }
+    a:hover {
+      background: var(--accent-cyan);
+      color: var(--bg-deep);
+      box-shadow: 0 0 25px rgba(0,245,255,0.3);
+    }
+  </style>
+</head>
+<body>
+  <h1>404</h1>
+  <p>This page doesn't exist. The quantum state has collapsed into nothing.</p>
+  <a href="/" rel="noopener noreferrer">Return to Quantum Vault</a>
+</body>
+</html>

@@ -1,0 +1,16 @@
+# ============================================================
+#  Quantum Vault — security.txt (RFC 9116)
+#
+#  This is a static, client-side-only site. There is no
+#  server-side code, no database, no user accounts, and no
+#  data collection. The attack surface is minimal.
+#
+#  All cryptographic operations run entirely in the browser
+#  using the Web Crypto API and @noble/post-quantum.
+# ============================================================
+
+Contact: https://github.com/kmay89/crypto/issues
+Expires: 2027-02-06T00:00:00.000Z
+Policy: https://github.com/kmay89/crypto/blob/main/CONTRIBUTING.md
+Preferred-Languages: en
+Canonical: https://quantumvault.app/.well-known/security.txt

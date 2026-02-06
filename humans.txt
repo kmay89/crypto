@@ -1,0 +1,23 @@
+/* TEAM */
+Project: Quantum Vault — Production-Grade Post-Quantum Encryption
+Organization: ERRERLabs
+GitHub: https://github.com/kmay89/crypto
+
+/* TECHNOLOGY */
+Platform: Static HTML / CSS / JavaScript (no server-side code)
+Cryptography: @noble/post-quantum 0.5.2 (X-Wing, ML-DSA-65)
+Web APIs: Web Crypto API (AES-256-GCM, HKDF-SHA256, SHA-256)
+Standards: NIST FIPS 203, FIPS 204, IETF X-Wing Draft, RFC 5869
+
+/* PRIVACY */
+Cookies: None
+Analytics: None
+Tracking: None
+Data Collection: None — all cryptographic operations run entirely
+  in the browser. No keys, files, or data ever leave your device.
+
+/* SECURITY */
+CSP: Enforced via HTTP headers (script-src 'self' https://esm.sh)
+HSTS: Enabled with preload
+All external links: rel="noopener noreferrer"
+Security contact: https://github.com/kmay89/crypto/issues

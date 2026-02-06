@@ -1,0 +1,76 @@
+# Quantum Vault — llms.txt
+# This file helps AI systems understand this project.
+# Last updated: 2026-02-06
+
+## Project
+Quantum Vault is a production-grade, client-side post-quantum encryption
+application. It runs entirely in the browser with zero server-side code,
+zero data collection, and zero tracking.
+
+## Purpose
+Provide accessible, educational, and production-ready post-quantum
+cryptographic tools including:
+- Key generation (X-Wing hybrid KEM, ML-DSA-65 signatures)
+- File encryption / decryption (X-Wing + HKDF-SHA256 + AES-256-GCM)
+- Message signing / verification (ML-DSA-65, NIST FIPS 204)
+
+## Architecture
+- Single-page application: index.html (markup + inline CSS) + main.js (logic)
+- External dependency: @noble/post-quantum v0.5.2 loaded from esm.sh CDN
+- All cryptography: Web Crypto API + @noble/post-quantum (client-side only)
+- Hosting: Static file hosting (Netlify, Cloudflare Pages, GitHub Pages)
+
+## Cryptographic Algorithms
+- X-Wing Hybrid KEM: ML-KEM-768 (FIPS 203) + X25519, combined with SHA3-256
+  - IND-CCA2 secure, 128-bit classical + post-quantum safe
+  - IETF draft standard
+- ML-DSA-65 (Dilithium): NIST FIPS 204, Category 3 (~192-bit security)
+  - EUF-CMA secure, post-quantum resistant
+- AES-256-GCM: FIPS 197, authenticated encryption (AEAD)
+  - Post-quantum safe (Grover reduces to 128-bit, still secure)
+- HKDF-SHA256: RFC 5869, key derivation with random salt + domain separator
+
+## Encryption Flow
+1. X-Wing encapsulates shared secret using recipient public key
+2. HKDF-SHA256 derives AES-256 key from shared secret
+3. AES-256-GCM encrypts file data with random 12-byte nonce
+4. SHA-256 plaintext hash computed for integrity verification
+5. Output: .pqenc JSON package (version 2.0)
+
+## Security Posture
+- Content Security Policy: script-src 'self' https://esm.sh (no unsafe-inline for scripts)
+- HTTP security headers: HSTS, X-Frame-Options DENY, COOP, COEP, CORP
+- No cookies, localStorage, analytics, or tracking
+- All keys exist only in browser memory during session
+- RFC 9116 security.txt for vulnerability disclosure
+
+## Compliance Alignment
+- NIST post-quantum standards (FIPS 203, FIPS 204)
+- OWASP security headers best practices
+- RFC 9116 (security.txt)
+- Privacy by design (zero data collection)
+
+## File Structure
+- index.html — UI markup and inline CSS
+- main.js — All cryptographic logic and application behavior
+- _headers — HTTP security headers (Netlify/Cloudflare)
+- _redirects — URL rewrite rules
+- security.txt / .well-known/security.txt — RFC 9116 disclosure
+- robots.txt — Crawler directives (all allowed)
+- humans.txt — Privacy and technology transparency
+- llms.txt — This file
+- sitemap.xml — SEO sitemap
+- site.webmanifest — PWA manifest
+- 404.html — Error page
+- PREFLIGHT.md — Pre-deployment security checklist
+- SITE_SECURITY_CHECKLIST.md — Comprehensive security audit guide
+- CONTRIBUTING.md — Contribution guidelines
+
+## Key Terms
+- X-Wing: Hybrid KEM combining ML-KEM-768 + X25519
+- ML-KEM: Module Lattice Key Encapsulation Mechanism (formerly Kyber)
+- ML-DSA: Module Lattice Digital Signature Algorithm (formerly Dilithium)
+- KEM: Key Encapsulation Mechanism
+- AEAD: Authenticated Encryption with Associated Data
+- HKDF: HMAC-based Key Derivation Function
+- .pqenc: Quantum Vault encrypted file format (JSON)

@@ -67,6 +67,14 @@
     .disclaimer-banner ul { margin: 0.5rem 0 0 1.2rem; }
     .disclaimer-banner li { margin-bottom: 0.25rem; }
 
+    .hero-section { margin-bottom: 2rem; padding: 2rem 2.5rem; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.06); border-left: 4px solid var(--accent-cyan); }
+    .hero-section h2 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.6rem; margin-bottom: 1.25rem; line-height: 1.3; }
+    .hero-section h2 span { background: linear-gradient(90deg, var(--accent-cyan), var(--accent-violet)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-section p { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.85; margin-bottom: 0.85rem; }
+    .hero-section p:last-child { margin-bottom: 0; }
+    .hero-section strong { color: var(--text-primary); }
+    .hero-section .hero-cta { color: var(--accent-cyan); font-size: 0.92rem; font-weight: 600; }
+
     .loading { position: fixed; inset: 0; background: var(--bg-deep); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; transition: opacity 0.5s; }
     .loading.hidden { opacity: 0; pointer-events: none; }
     .spinner { width: 50px; height: 50px; border: 3px solid var(--bg-elevated); border-top-color: var(--accent-cyan); border-radius: 50%; animation: spin 1s linear infinite; }
@@ -262,6 +270,14 @@
         </ul>
       </div>
 
+      <div class="hero-section">
+        <h2>Your encryption has an <span>expiration date</span>.</h2>
+        <p>Nearly all internet security — the padlock in your browser, your messaging apps, your bank's login page — depends on math that quantum computers will break. Algorithms like RSA and elliptic curve cryptography protect trillions of dollars and billions of private conversations right now. <strong>Shor's algorithm</strong>, running on powerful enough quantum hardware, will crack them open.</p>
+        <p>This isn't a far-off scenario. Intelligence agencies are already stockpiling encrypted traffic today, waiting for quantum hardware to catch up. Cryptographers call this <strong>"harvest now, decrypt later"</strong> — and it means data you encrypt today may not stay private forever.</p>
+        <p>The countermeasure is already here. After an 8-year worldwide competition, NIST finalized the first <strong>post-quantum cryptographic standards</strong> in 2024 — algorithms built on lattice math so hard that no known quantum attack can efficiently solve it.</p>
+        <p class="hero-cta">This tool puts those algorithms in your hands. Generate real post-quantum keys. Encrypt real files. Sign real messages. Everything runs in your browser — nothing simulated, nothing sent to any server.</p>
+      </div>
+
       <nav class="tabs">
         <button class="tab active" data-tab="keygen">Generate Keys</button>
         <button class="tab" data-tab="encrypt">Encrypt / Decrypt</button>
@@ -365,7 +381,7 @@
         <div class="education-section">
           <div class="edu-header">
             <h2>📚 Understanding <span>Cryptographic Keys</span></h2>
-            <p>Everything you need to know about the cryptography protecting your data, explained in plain language.</p>
+            <p>The ideas behind the algorithms you just used, from first principles to implementation details — whether this is your first encounter with cryptography or your hundredth.</p>
           </div>
 
           <div class="edu-grid">
@@ -375,20 +391,22 @@
                 <div class="edu-card-icon">🔑</div>
                 <div>
                   <div class="edu-card-title">What is a Cryptographic Key?</div>
-                  <div class="edu-card-subtitle">The foundation of digital security</div>
+                  <div class="edu-card-subtitle">You use them every day without knowing it</div>
                 </div>
               </div>
               <div class="edu-card-body">
-                <p>A cryptographic key is like a password, but much longer and randomly generated. It's a piece of data that controls how encryption and decryption work.</p>
-                <p>Think of it like a physical key: only the right key opens the right lock. In cryptography, only the right key can decrypt data that was encrypted with its matching pair.</p>
+                <p>Every time your browser shows a padlock, a cryptographic key is protecting that connection. Every Signal message, every banking session, every software update — keys are doing the work invisibly.</p>
+                <p>A cryptographic key is a piece of randomly generated data — think of it as a very long, very random password — that controls how encryption and decryption behave. Unlike a password you choose (which might be guessable), a good cryptographic key comes from a cryptographically secure random number generator. The keys on this page use your browser's <code>crypto.getRandomValues()</code> — the same CSPRNG used by banking and government systems.</p>
                 <div class="edu-highlight">
-                  <strong>Public Key:</strong> Share freely — others use it to encrypt messages TO you<br>
-                  <strong>Private Key:</strong> Keep secret — only you can decrypt messages
+                  <strong>Public key</strong> = an open mailbox slot. Anyone can drop a letter in.<br>
+                  <strong>Private key</strong> = the only key that opens that mailbox.<br>
+                  Lose your private key and your data is gone forever. Leak it and your security is gone instantly.
                 </div>
               </div>
               <div class="edu-meta">
                 <span class="edu-tag year">1976</span>
-                <span class="edu-tag">Diffie-Hellman invented</span>
+                <span class="edu-tag">Diffie &amp; Hellman</span>
+                <span class="edu-tag">Asymmetric crypto</span>
               </div>
             </div>
 
@@ -398,20 +416,21 @@
                 <div class="edu-card-icon">⚛️</div>
                 <div>
                   <div class="edu-card-title">What is Post-Quantum Cryptography?</div>
-                  <div class="edu-card-subtitle">Protection against future quantum computers</div>
+                  <div class="edu-card-subtitle">The biggest upgrade in cryptography since public keys</div>
                 </div>
               </div>
               <div class="edu-card-body">
-                <p>Quantum computers can break most encryption used today (RSA, ECC) using Shor's algorithm. Post-quantum cryptography uses math problems that even quantum computers can't solve efficiently.</p>
-                <p>The main approaches are: lattice-based (used here), hash-based, code-based, and isogeny-based. NIST standardized the first algorithms in 2024 after 8 years of evaluation.</p>
+                <p>In 1994, mathematician Peter Shor proved that a quantum computer could factor large numbers and compute discrete logarithms in polynomial time. That single theorem threatens nearly all public-key cryptography deployed today — RSA, Diffie-Hellman, ECDSA, EdDSA, X25519 — all of it falls to Shor's algorithm.</p>
+                <p>Post-quantum cryptography replaces the vulnerable math (factoring, discrete logs, elliptic curves) with fundamentally different hard problems: <strong>lattice problems</strong> (used here), hash-based constructions, error-correcting codes, and multivariate equations. These problems resist both classical and quantum attacks based on current mathematical understanding.</p>
                 <div class="edu-highlight">
-                  <strong>Why now?</strong> "Harvest now, decrypt later" — adversaries may be storing encrypted data today to decrypt once quantum computers exist.
+                  <strong>The urgency is real.</strong> The US government has mandated a transition to post-quantum cryptography by 2035. Nation-states are already collecting encrypted traffic to decrypt later. If your data needs to stay secret for 10+ years, the time to switch is now.
                 </div>
+                <p>NIST ran an 8-year global competition (2016–2024) and selected <strong>ML-KEM</strong> (encryption) and <strong>ML-DSA</strong> (signatures) as the primary standards. Both are lattice-based and both are used in this tool.</p>
               </div>
               <div class="edu-meta">
-                <span class="edu-tag year">2016-2024</span>
+                <span class="edu-tag year">2016–2024</span>
                 <span class="edu-tag">NIST competition</span>
-                <span class="edu-tag">Lattice-based</span>
+                <span class="edu-tag">69 submissions → 4 winners</span>
               </div>
             </div>
 
@@ -421,22 +440,23 @@
                 <div class="edu-card-icon">🦅</div>
                 <div>
                   <div class="edu-card-title">What is X-Wing?</div>
-                  <div class="edu-card-subtitle">The hybrid approach to quantum safety</div>
+                  <div class="edu-card-subtitle">The belt-and-suspenders approach to the quantum transition</div>
                 </div>
               </div>
               <div class="edu-card-body">
-                <p><strong>X-Wing</strong> is a "hybrid" Key Encapsulation Mechanism (KEM). It combines two algorithms: ML-KEM-768 (post-quantum) and X25519 (classical elliptic curve).</p>
-                <p>The brilliant part: it's secure if <em>either</em> algorithm is secure. If quantum computers break X25519, ML-KEM protects you. If someone finds a flaw in ML-KEM, X25519 protects you.</p>
+                <p>Here's the honest tension: post-quantum algorithms are built on <em>relatively new</em> mathematics compared to RSA (1977) or elliptic curves (1985). What if there's a flaw nobody has found yet? That pragmatic worry led to a clever engineering answer: <strong>don't bet everything on one algorithm.</strong></p>
+                <p>X-Wing is a hybrid KEM that combines <strong>ML-KEM-768</strong> (post-quantum, lattice-based) with <strong>X25519</strong> (classical, elliptic curve) using SHA3-256 as the combiner. The security guarantee: <em>your data stays protected as long as at least one of the two algorithms holds.</em></p>
+                <p>Quantum computer breaks X25519? ML-KEM still protects you. Flaw found in lattice math? X25519 still protects you. Both would have to fail simultaneously — an event cryptographers consider astronomically unlikely.</p>
                 <div class="timeline">
-                  <div class="timeline-item"><span class="timeline-year">2024</span><div class="timeline-text">X-Wing specification published</div></div>
-                  <div class="timeline-item"><span class="timeline-year">2024</span><div class="timeline-text">Formal security proof completed</div></div>
-                  <div class="timeline-item"><span class="timeline-year">2025</span><div class="timeline-text">IETF draft standardization</div></div>
+                  <div class="timeline-item"><span class="timeline-year">2024</span><div class="timeline-text">X-Wing specification and formal security proof published</div></div>
+                  <div class="timeline-item"><span class="timeline-year">2025</span><div class="timeline-text">IETF draft standardization (still in progress — not finalized)</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Now</span><div class="timeline-text">Adopted by Chrome, Cloudflare, Signal, and iMessage (hybrid PQ)</div></div>
                 </div>
               </div>
               <div class="edu-meta">
                 <span class="edu-tag pro">Hybrid security</span>
                 <span class="edu-tag pro">Formally proven</span>
-                <span class="edu-tag">IETF draft</span>
+                <span class="edu-tag">IETF draft (not final)</span>
               </div>
             </div>
 
@@ -446,35 +466,18 @@
                 <div class="edu-card-icon">🔷</div>
                 <div>
                   <div class="edu-card-title">What is ML-KEM (Kyber)?</div>
-                  <div class="edu-card-subtitle">NIST's primary post-quantum encryption standard</div>
+                  <div class="edu-card-subtitle">The math that quantum computers can't crack</div>
                 </div>
               </div>
               <div class="edu-card-body">
-                <p><strong>ML-KEM</strong> (Module Lattice Key Encapsulation Mechanism), formerly called Kyber, is the first NIST-standardized post-quantum encryption algorithm (FIPS 203).</p>
-                <p>It's based on the "Learning With Errors" (LWE) problem over module lattices. Imagine a grid in many dimensions — finding short vectors in this grid is computationally hard, even for quantum computers.</p>
-                <div class="edu-comparison">
-                  <div class="edu-comp-col">
-                    <h4>Strengths</h4>
-                    <ul>
-                      <li>NIST standardized (2024)</li>
-                      <li>Fast key generation</li>
-                      <li>Small keys/ciphertexts</li>
-                      <li>Well-studied security</li>
-                    </ul>
-                  </div>
-                  <div class="edu-comp-col weak">
-                    <h4>Considerations</h4>
-                    <ul>
-                      <li>Larger than classical keys</li>
-                      <li>Relatively new (less tested)</li>
-                      <li>Implementation complexity</li>
-                    </ul>
-                  </div>
-                </div>
+                <p>Imagine a grid of points stretching across hundreds of dimensions. Someone gives you a point that's <em>slightly</em> off the grid and asks: what's the nearest grid point? In two or three dimensions, this is trivial. In hundreds of dimensions, it becomes so hard that no known algorithm — classical or quantum — can solve it efficiently.</p>
+                <p>This is the <strong>Learning With Errors (LWE)</strong> problem, and it's the mathematical foundation of ML-KEM. The "module" variant works over structured lattices for better performance, giving us a practical algorithm that survived 8 years of the world's best cryptanalysts trying to break it.</p>
+                <p><strong>ML-KEM-768</strong> (the variant used in X-Wing) was submitted to NIST as "Kyber," was standardized as FIPS 203 in 2024, and operates at Category 1 security (128-bit equivalent). Key sizes are larger than classical crypto — 1,216 bytes for a public key vs. 32 bytes for X25519 — but generation and encapsulation are fast, often faster than RSA.</p>
               </div>
               <div class="edu-meta">
                 <span class="edu-tag year">2024</span>
                 <span class="edu-tag">FIPS 203</span>
+                <span class="edu-tag">IND-CCA2</span>
                 <span class="edu-tag">Lattice-based</span>
               </div>
             </div>
@@ -485,20 +488,24 @@
                 <div class="edu-card-icon">✍️</div>
                 <div>
                   <div class="edu-card-title">What is ML-DSA (Dilithium)?</div>
-                  <div class="edu-card-subtitle">Post-quantum digital signatures</div>
+                  <div class="edu-card-subtitle">Unforgeable proof in a post-quantum world</div>
                 </div>
               </div>
               <div class="edu-card-body">
-                <p><strong>ML-DSA</strong> (Module Lattice Digital Signature Algorithm), formerly Dilithium, is NIST's primary post-quantum signature standard (FIPS 204).</p>
-                <p>Digital signatures prove authenticity — that a message really came from who it claims to be from, and wasn't modified. Think of it like a handwritten signature, but mathematically unforgeable.</p>
+                <p>Every time your phone verifies a software update, every time your browser checks a website's certificate, every time a Bitcoin transaction is confirmed — a <strong>digital signature</strong> is doing the work. Signatures are the invisible trust infrastructure of the internet.</p>
+                <p>ML-DSA (formerly Dilithium) is the post-quantum replacement for signature algorithms like ECDSA and EdDSA that Shor's algorithm will break. It provides three mathematical guarantees that handwritten signatures never could:</p>
+                <p><strong>1. Authentication</strong> — proves who created the signature<br>
+                   <strong>2. Integrity</strong> — proves the message wasn't altered after signing<br>
+                   <strong>3. Non-repudiation</strong> — the signer cannot plausibly deny they signed it</p>
                 <div class="edu-highlight">
-                  <strong>ML-DSA-65</strong> provides Category 3 security (equivalent to AES-192). It's the recommended level for most applications.
+                  <strong>ML-DSA-65</strong> operates at NIST Category 3 (~AES-192 equivalent). It's <strong>EUF-CMA</strong> secure — meaning signatures can't be forged even by an attacker who can request signatures on arbitrary messages of their choosing.
                 </div>
               </div>
               <div class="edu-meta">
                 <span class="edu-tag year">2024</span>
                 <span class="edu-tag">FIPS 204</span>
-                <span class="edu-tag pro">Unforgeable</span>
+                <span class="edu-tag pro">EUF-CMA</span>
+                <span class="edu-tag">Category 3</span>
               </div>
             </div>
 
@@ -508,34 +515,20 @@
                 <div class="edu-card-icon">📈</div>
                 <div>
                   <div class="edu-card-title">What is X25519?</div>
-                  <div class="edu-card-subtitle">The gold standard of classical key exchange</div>
+                  <div class="edu-card-subtitle">The most trusted algorithm facing retirement</div>
                 </div>
               </div>
               <div class="edu-card-body">
-                <p><strong>X25519</strong> is an elliptic curve Diffie-Hellman function designed by Daniel J. Bernstein in 2005. It's used in TLS, Signal, WhatsApp, SSH, and countless other protocols.</p>
-                <p>It provides 128-bit security with only 32-byte keys — extremely compact and fast. However, it IS vulnerable to quantum computers, which is why we combine it with ML-KEM.</p>
-                <div class="edu-comparison">
-                  <div class="edu-comp-col">
-                    <h4>Strengths</h4>
-                    <ul>
-                      <li>Battle-tested since 2005</li>
-                      <li>Extremely fast</li>
-                      <li>Tiny 32-byte keys</li>
-                      <li>Constant-time implementation</li>
-                    </ul>
-                  </div>
-                  <div class="edu-comp-col weak">
-                    <h4>Weaknesses</h4>
-                    <ul>
-                      <li>Broken by quantum computers</li>
-                      <li>Shor's algorithm threat</li>
-                    </ul>
-                  </div>
+                <p><strong>X25519</strong> is arguably the most successful key agreement protocol ever designed. Created by Daniel J. Bernstein in 2005, it protects TLS (HTTPS), Signal, WhatsApp, SSH, WireGuard, Tor, and dozens of other critical systems. It's fast, elegant, and has an extraordinary security track record over two decades.</p>
+                <p>But X25519 is elliptic curve cryptography, and <em>all</em> elliptic curve cryptography falls to Shor's algorithm. A sufficiently powerful quantum computer could recover the private key from a public key in polynomial time. Twenty years of trust won't matter once that machine exists.</p>
+                <div class="edu-highlight">
+                  <strong>This is exactly why X-Wing pairs it with ML-KEM.</strong> X25519 contributes 20 years of battle-tested confidence. ML-KEM contributes quantum resistance. Together, they cover each other's blind spots — classical trust meets post-quantum math.
                 </div>
               </div>
               <div class="edu-meta">
                 <span class="edu-tag year">2005</span>
                 <span class="edu-tag">Curve25519</span>
+                <span class="edu-tag pro">20+ years battle-tested</span>
                 <span class="edu-tag con">Quantum vulnerable</span>
               </div>
             </div>
@@ -650,7 +643,7 @@
         <div class="education-section">
           <div class="edu-header">
             <h2>📚 Understanding <span>Encryption</span></h2>
-            <p>How your files are protected with multiple layers of cryptographic security.</p>
+            <p>What happens when you click "Encrypt" — each layer of protection, why it exists, and how the pieces fit together.</p>
           </div>
 
           <div class="edu-grid">
@@ -660,19 +653,20 @@
                 <div class="edu-card-icon">🔒</div>
                 <div>
                   <div class="edu-card-title">What is Encryption?</div>
-                  <div class="edu-card-subtitle">Turning readable data into gibberish</div>
+                  <div class="edu-card-subtitle">4,000 years old and more important than ever</div>
                 </div>
               </div>
               <div class="edu-card-body">
-                <p>Encryption transforms readable data (plaintext) into unreadable scrambled data (ciphertext) using a mathematical algorithm and a key.</p>
-                <p>Only someone with the correct key can reverse the process (decryption) to recover the original data. Without the key, the data looks like random noise.</p>
+                <p>When you send a message through the internet, it passes through routers, servers, and cables owned by dozens of different organizations. Any of them could read it — unless it's encrypted.</p>
+                <p>Encryption transforms readable data (plaintext) into scrambled data (ciphertext) using a mathematical algorithm and a key. Without the key, the ciphertext is computationally indistinguishable from random noise. With the key, the original data comes back perfectly.</p>
                 <div class="edu-highlight">
-                  <strong>Analogy:</strong> It's like writing a letter in a secret language that only you and your friend understand. Anyone who intercepts it just sees nonsense.
+                  <strong>The ancient version:</strong> Julius Caesar shifted each letter by 3 positions (A→D, B→E). The modern version uses mathematical transformations so complex that all the computers on Earth, running until the heat death of the universe, couldn't guess the key by brute force.
                 </div>
               </div>
               <div class="edu-meta">
                 <span class="edu-tag year">~2000 BCE</span>
                 <span class="edu-tag">Ancient origins</span>
+                <span class="edu-tag">Fundamental primitive</span>
               </div>
             </div>
 
@@ -682,20 +676,22 @@
                 <div class="edu-card-icon">📦</div>
                 <div>
                   <div class="edu-card-title">What is a KEM?</div>
-                  <div class="edu-card-subtitle">Key Encapsulation Mechanism</div>
+                  <div class="edu-card-subtitle">How two strangers agree on a secret</div>
                 </div>
               </div>
               <div class="edu-card-body">
-                <p>A <strong>KEM</strong> is a method to securely share a secret key between two parties. Instead of encrypting data directly with public-key crypto (which is slow), we use the KEM to agree on a shared secret, then use that secret with fast symmetric encryption.</p>
-                <p><strong>How it works:</strong></p>
-                <p>1. Alice generates a random shared secret<br>
-                   2. Alice "encapsulates" it using Bob's public key<br>
-                   3. Bob "decapsulates" using his private key<br>
-                   4. Now both have the same secret!</p>
+                <p>Here's a problem that sounds impossible: you want to send someone an encrypted file, but you've never met them and can't exchange a password in advance. How do you agree on a shared secret key over an insecure channel?</p>
+                <p>A <strong>Key Encapsulation Mechanism (KEM)</strong> solves this. Using the recipient's <em>public</em> key — which they share openly — you generate a random shared secret that only their <em>private</em> key can recover:</p>
+                <div class="timeline">
+                  <div class="timeline-item"><span class="timeline-year">1</span><div class="timeline-text">You <strong>encapsulate</strong>: feed the recipient's public key into the KEM. Out comes a shared secret (32 bytes) and a ciphertext (1,120 bytes).</div></div>
+                  <div class="timeline-item"><span class="timeline-year">2</span><div class="timeline-text">You send the ciphertext to the recipient (it's safe — nobody else can extract the secret from it).</div></div>
+                  <div class="timeline-item"><span class="timeline-year">3</span><div class="timeline-text">The recipient <strong>decapsulates</strong>: feeds the ciphertext and their private key into the KEM. Out comes the same shared secret.</div></div>
+                </div>
+                <p>Now both of you have a shared secret key. You never exchanged it directly — the math made it happen.</p>
               </div>
               <div class="edu-meta">
                 <span class="edu-tag">Modern approach</span>
-                <span class="edu-tag pro">Efficient</span>
+                <span class="edu-tag pro">No pre-shared secrets needed</span>
               </div>
             </div>
 
@@ -705,20 +701,20 @@
                 <div class="edu-card-icon">🧪</div>
                 <div>
                   <div class="edu-card-title">What is HKDF?</div>
-                  <div class="edu-card-subtitle">Key Derivation Function</div>
+                  <div class="edu-card-subtitle">Turning a good secret into a perfect key</div>
                 </div>
               </div>
               <div class="edu-card-body">
-                <p><strong>HKDF</strong> (HMAC-based Key Derivation Function) takes a shared secret and "stretches" or "derives" it into one or more cryptographically strong keys.</p>
-                <p>Even if the original secret has some weaknesses or patterns, HKDF produces keys that look completely random and are safe to use for encryption.</p>
+                <p>The shared secret from the KEM is good, but it might have subtle statistical patterns or not be exactly the right format for your encryption algorithm. You don't use it directly — that would be cryptographically sloppy.</p>
+                <p><strong>HKDF</strong> (HMAC-based Key Derivation Function, RFC 5869) takes the shared secret and transforms it into a key that's uniformly random, the right length, and domain-separated — meaning even if the same secret were used in a different application, it would produce a completely different key.</p>
                 <div class="edu-highlight">
-                  <strong>We use:</strong> HKDF-SHA256 with a random salt and domain separator ("QuantumVault-v1-AES256GCM") to derive our AES encryption key.
+                  <strong>This tool uses:</strong> HKDF-SHA256 with a fresh 32-byte random salt per encryption and the domain separator <code>QuantumVault-v1-AES256GCM</code>. The salt ensures that encrypting the same file twice produces completely different ciphertexts. The domain separator ensures this key is only valid for this specific protocol.
                 </div>
               </div>
               <div class="edu-meta">
                 <span class="edu-tag year">2010</span>
                 <span class="edu-tag">RFC 5869</span>
-                <span class="edu-tag pro">Industry standard</span>
+                <span class="edu-tag pro">Extract-then-expand</span>
               </div>
             </div>
 
@@ -728,34 +724,21 @@
                 <div class="edu-card-icon">🛡️</div>
                 <div>
                   <div class="edu-card-title">What is AES-256-GCM?</div>
-                  <div class="edu-card-subtitle">Authenticated Encryption</div>
+                  <div class="edu-card-subtitle">The workhorse that encrypts your actual data</div>
                 </div>
               </div>
               <div class="edu-card-body">
-                <p><strong>AES</strong> (Advanced Encryption Standard) is the most widely used symmetric encryption algorithm. "256" means 256-bit keys — effectively unbreakable even with quantum computers (Grover's algorithm only halves security to 128-bit).</p>
-                <p><strong>GCM</strong> (Galois/Counter Mode) adds authentication — it detects if anyone tampered with the encrypted data. This is called "AEAD" (Authenticated Encryption with Associated Data).</p>
-                <div class="edu-comparison">
-                  <div class="edu-comp-col">
-                    <h4>Provides</h4>
-                    <ul>
-                      <li>Confidentiality (secrecy)</li>
-                      <li>Integrity (tamper detection)</li>
-                      <li>Fast hardware acceleration</li>
-                    </ul>
-                  </div>
-                  <div class="edu-comp-col weak">
-                    <h4>Requirements</h4>
-                    <ul>
-                      <li>Never reuse nonce with same key</li>
-                      <li>Limited to ~64GB per encryption</li>
-                    </ul>
-                  </div>
+                <p><strong>AES</strong> (Advanced Encryption Standard) is the symmetric cipher that does the heavy lifting — it's what actually scrambles your file data. Selected by NIST in 2001, it encrypts everything from classified government documents to your iMessage conversations. "256" means 256-bit keys, which gives 2<sup>256</sup> possible keys — a number larger than the atoms in the observable universe.</p>
+                <p><strong>GCM</strong> (Galois/Counter Mode) is the critical addition that makes this <em>authenticated</em> encryption. It doesn't just hide your data — it detects tampering. If an attacker flips even a single bit of the ciphertext, decryption fails entirely rather than producing corrupted output. This property (called <strong>AEAD</strong>) prevents a whole class of attacks where adversaries manipulate ciphertext.</p>
+                <div class="edu-highlight">
+                  <strong>Quantum-safe.</strong> Grover's algorithm (the best known quantum attack against symmetric ciphers) only halves the effective security: AES-256 drops to 128-bit, which is still computationally infeasible to break. This is why we use 256, not 128.
                 </div>
               </div>
               <div class="edu-meta">
                 <span class="edu-tag year">2001</span>
                 <span class="edu-tag">FIPS 197</span>
                 <span class="edu-tag pro">Quantum-safe</span>
+                <span class="edu-tag">AEAD</span>
               </div>
             </div>
 
@@ -764,22 +747,23 @@
               <div class="edu-card-header">
                 <div class="edu-card-icon">🔄</div>
                 <div>
-                  <div class="edu-card-title">How Hybrid Encryption Works</div>
-                  <div class="edu-card-subtitle">The complete flow</div>
+                  <div class="edu-card-title">How It All Fits Together</div>
+                  <div class="edu-card-subtitle">The exact sequence when you click "Encrypt"</div>
                 </div>
               </div>
               <div class="edu-card-body">
-                <p>We combine asymmetric (public-key) and symmetric encryption for the best of both worlds:</p>
+                <p>Every component above plays a specific role. Here's what actually happens in <code>main.js</code> when you encrypt a file:</p>
                 <div class="timeline">
-                  <div class="timeline-item"><span class="timeline-year">Step 1</span><div class="timeline-text">X-Wing encapsulates a 32-byte shared secret using recipient's public key</div></div>
-                  <div class="timeline-item"><span class="timeline-year">Step 2</span><div class="timeline-text">HKDF derives an AES-256 key from the shared secret</div></div>
-                  <div class="timeline-item"><span class="timeline-year">Step 3</span><div class="timeline-text">AES-256-GCM encrypts the actual file data</div></div>
-                  <div class="timeline-item"><span class="timeline-year">Step 4</span><div class="timeline-text">Package: KEM ciphertext + salt + nonce + encrypted data</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Step 1</span><div class="timeline-text"><strong>KEM:</strong> X-Wing encapsulates a 32-byte shared secret using the recipient's public key. This produces a KEM ciphertext (1,120 bytes) that only the recipient can decapsulate.</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Step 2</span><div class="timeline-text"><strong>KDF:</strong> HKDF-SHA256 derives a 256-bit AES key from the shared secret, using a fresh random salt and the domain separator.</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Step 3</span><div class="timeline-text"><strong>AEAD:</strong> AES-256-GCM encrypts the file data with a random 12-byte nonce. The ciphertext includes an authentication tag that detects any tampering.</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Step 4</span><div class="timeline-text"><strong>Integrity:</strong> SHA-256 hashes the original file, so the recipient can verify the decrypted output matches exactly.</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Step 5</span><div class="timeline-text"><strong>Package:</strong> Everything — KEM ciphertext, salt, nonce, encrypted data, and metadata — is bundled into a .pqenc JSON file.</div></div>
                 </div>
               </div>
               <div class="edu-meta">
-                <span class="edu-tag pro">Best of both worlds</span>
-                <span class="edu-tag">Industry standard</span>
+                <span class="edu-tag pro">Layered defense</span>
+                <span class="edu-tag">5 cryptographic operations</span>
               </div>
             </div>
 
@@ -788,20 +772,21 @@
               <div class="edu-card-header">
                 <div class="edu-card-icon">❓</div>
                 <div>
-                  <div class="edu-card-title">Why Not Encrypt Everything with Public Keys?</div>
-                  <div class="edu-card-subtitle">The efficiency problem</div>
+                  <div class="edu-card-title">Why So Many Layers?</div>
+                  <div class="edu-card-subtitle">Each one solves a different problem</div>
                 </div>
               </div>
               <div class="edu-card-body">
-                <p>Public-key encryption is <strong>slow</strong> — often 1000x slower than symmetric encryption like AES. It's also designed for small data (a few hundred bytes).</p>
-                <p>Encrypting a 1GB file directly with public-key crypto would take forever and might not even work. Instead, we use the fast symmetric cipher (AES) for the data and only use the slow public-key crypto to protect the small symmetric key.</p>
+                <p>If you're wondering why we can't just encrypt the file directly with the public key and be done with it — good question. The answer is both practical and mathematical.</p>
+                <p><strong>Speed:</strong> Public-key operations (KEM, signatures) are orders of magnitude slower than symmetric encryption (AES). Encrypting a 100MB file directly with a KEM would be impractical. AES-GCM, backed by hardware acceleration in modern CPUs, can encrypt gigabytes per second.</p>
+                <p><strong>Security margin:</strong> Each layer provides a different guarantee. The KEM ensures only the recipient can recover the key. HKDF ensures the AES key is properly random and domain-separated. AES-GCM ensures both secrecy and tamper detection. SHA-256 provides a final integrity check independent of AES-GCM.</p>
                 <div class="edu-highlight">
-                  <strong>Result:</strong> Near-symmetric-speed encryption with the convenience of public keys. Only the recipient's private key can unlock it!
+                  <strong>This layered pattern</strong> — KEM → KDF → AEAD — is exactly how TLS 1.3, Signal, WireGuard, and most modern encrypted protocols work. It's not over-engineering. It's the standard architecture for a reason.
                 </div>
               </div>
               <div class="edu-meta">
-                <span class="edu-tag">Performance</span>
-                <span class="edu-tag pro">Practical</span>
+                <span class="edu-tag">Defense in depth</span>
+                <span class="edu-tag pro">Same pattern as TLS 1.3</span>
               </div>
             </div>
           </div>
@@ -870,7 +855,7 @@
         <div class="education-section">
           <div class="edu-header">
             <h2>📚 Understanding <span>Digital Signatures</span></h2>
-            <p>How cryptography proves authenticity and prevents forgery.</p>
+            <p>Encryption hides what you said. Signatures prove who said it — and that nobody changed a word.</p>
           </div>
 
           <div class="edu-grid">
@@ -880,19 +865,23 @@
                 <div class="edu-card-icon">✍️</div>
                 <div>
                   <div class="edu-card-title">What is a Digital Signature?</div>
-                  <div class="edu-card-subtitle">The electronic equivalent of signing a document</div>
+                  <div class="edu-card-subtitle">Better than a handwritten one in every measurable way</div>
                 </div>
               </div>
               <div class="edu-card-body">
-                <p>A digital signature is a mathematical proof that a message came from a specific person and hasn't been altered. Unlike a handwritten signature, it's virtually impossible to forge.</p>
-                <p><strong>It provides three guarantees:</strong></p>
-                <p>1. <strong>Authentication</strong> — proves who sent it<br>
-                   2. <strong>Integrity</strong> — proves it wasn't modified<br>
-                   3. <strong>Non-repudiation</strong> — sender can't deny sending it</p>
+                <p>A handwritten signature is easy to forge, impossible to tie to a specific document, and proves nothing about whether the document was altered after signing. Digital signatures solve all three problems with mathematics.</p>
+                <p>A digital signature is a piece of data, computed from a message and a private key, that provides three guarantees no physical signature ever could:</p>
+                <p><strong>1. Authentication</strong> — it could only have been created by someone who holds the private key<br>
+                   <strong>2. Integrity</strong> — if even one bit of the message changes, the signature becomes invalid<br>
+                   <strong>3. Non-repudiation</strong> — the signer cannot plausibly claim they didn't sign it (the math doesn't lie)</p>
+                <div class="edu-highlight">
+                  <strong>The asymmetry is elegant:</strong> creating a signature requires the private key (which only you have). Verifying a signature only requires the public key (which anyone can have). The world can verify, but only you can sign.
+                </div>
               </div>
               <div class="edu-meta">
                 <span class="edu-tag year">1976</span>
                 <span class="edu-tag">Diffie-Hellman paper</span>
+                <span class="edu-tag">Fundamental primitive</span>
               </div>
             </div>
 
@@ -902,18 +891,19 @@
                 <div class="edu-card-icon">📝</div>
                 <div>
                   <div class="edu-card-title">How Signing Works</div>
-                  <div class="edu-card-subtitle">The mechanics of creating a signature</div>
+                  <div class="edu-card-subtitle">What happens when you click "Sign Message"</div>
                 </div>
               </div>
               <div class="edu-card-body">
+                <p>The process is surprisingly simple, even though the math underneath is not:</p>
                 <div class="timeline">
-                  <div class="timeline-item"><span class="timeline-year">Step 1</span><div class="timeline-text">You write a message</div></div>
-                  <div class="timeline-item"><span class="timeline-year">Step 2</span><div class="timeline-text">Your private key + message → signature algorithm</div></div>
-                  <div class="timeline-item"><span class="timeline-year">Step 3</span><div class="timeline-text">Out comes a unique signature (looks like random data)</div></div>
-                  <div class="timeline-item"><span class="timeline-year">Step 4</span><div class="timeline-text">Send message + signature to recipient</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Step 1</span><div class="timeline-text">Your message is converted to bytes using UTF-8 encoding</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Step 2</span><div class="timeline-text">ML-DSA-65 takes the message bytes and your 4,032-byte private key as input</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Step 3</span><div class="timeline-text">The algorithm produces a signature — a unique piece of data (typically ~3,300 bytes) that's mathematically bound to both the message and your key</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Step 4</span><div class="timeline-text">You share the message, the signature, and your public key. The message is <em>not</em> encrypted — signing is about proof, not secrecy</div></div>
                 </div>
                 <div class="edu-highlight">
-                  <strong>Key insight:</strong> The signature is tied to BOTH the message AND your private key. Change one word, and the signature becomes invalid.
+                  <strong>Critical property:</strong> The signature is bound to both the message <em>and</em> your key simultaneously. Change a single character of the message, and the signature becomes invalid. Use a different key, and the signature becomes invalid. There's no way to "transplant" a signature from one message to another.
                 </div>
               </div>
             </div>
@@ -924,17 +914,17 @@
                 <div class="edu-card-icon">✅</div>
                 <div>
                   <div class="edu-card-title">How Verification Works</div>
-                  <div class="edu-card-subtitle">Checking if a signature is valid</div>
+                  <div class="edu-card-subtitle">Anyone can verify — no secrets required</div>
                 </div>
               </div>
               <div class="edu-card-body">
-                <p>Anyone with your <strong>public key</strong> can verify your signature — they don't need your private key!</p>
+                <p>Verification is the beautiful counterpart to signing. Anyone in the world who has the signer's public key can verify a signature — they never need the private key, and they never need to trust a third party.</p>
                 <div class="timeline">
-                  <div class="timeline-item"><span class="timeline-year">Input</span><div class="timeline-text">Message + Signature + Signer's public key</div></div>
-                  <div class="timeline-item"><span class="timeline-year">Process</span><div class="timeline-text">Verification algorithm checks mathematical relationship</div></div>
-                  <div class="timeline-item"><span class="timeline-year">Output</span><div class="timeline-text">Valid ✓ or Invalid ✗</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Input</span><div class="timeline-text">The message, the signature, and the signer's 1,952-byte public key</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Math</span><div class="timeline-text">ML-DSA-65 checks the mathematical relationship between all three inputs. This involves lattice operations over module structures — hard to forge, fast to verify.</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Output</span><div class="timeline-text"><strong>Valid ✓</strong> — the signature was made by this key on this exact message. Or <strong>Invalid ✗</strong> — something doesn't match.</div></div>
                 </div>
-                <p style="margin-top:0.75rem">If someone changes even one character of the message, or if the signature was made with a different key, verification fails.</p>
+                <p>There is no "almost valid." No "close enough." Verification is a binary yes-or-no, and the probability of a forged signature passing is cryptographically negligible (less than 1 in 2<sup>128</sup>).</p>
               </div>
             </div>
 
@@ -944,32 +934,35 @@
                 <div class="edu-card-icon">🔀</div>
                 <div>
                   <div class="edu-card-title">Signing vs. Encryption</div>
-                  <div class="edu-card-subtitle">They solve different problems</div>
+                  <div class="edu-card-subtitle">They look similar but solve opposite problems</div>
                 </div>
               </div>
               <div class="edu-card-body">
+                <p>People often confuse these because both use public/private key pairs. But they serve opposite purposes and use the keys in opposite directions:</p>
                 <div class="edu-comparison">
                   <div class="edu-comp-col">
                     <h4 style="color:var(--accent-magenta)">Signing</h4>
                     <ul>
                       <li>Proves who sent it</li>
                       <li>Proves it wasn't modified</li>
-                      <li>Message stays readable</li>
-                      <li>Uses YOUR private key</li>
+                      <li>Message stays readable by everyone</li>
+                      <li>Uses YOUR private key to create</li>
+                      <li>Uses YOUR public key to verify</li>
                     </ul>
                   </div>
                   <div class="edu-comp-col">
                     <h4 style="color:var(--accent-cyan)">Encryption</h4>
                     <ul>
                       <li>Hides the message content</li>
-                      <li>Only recipient can read</li>
-                      <li>Uses THEIR public key</li>
-                      <li>Doesn't prove sender</li>
+                      <li>Only the recipient can read it</li>
+                      <li>Doesn't prove who sent it</li>
+                      <li>Uses THEIR public key to encrypt</li>
+                      <li>Uses THEIR private key to decrypt</li>
                     </ul>
                   </div>
                 </div>
                 <div class="edu-highlight">
-                  <strong>Best practice:</strong> For sensitive communications, do BOTH — encrypt for privacy, then sign to prove authenticity.
+                  <strong>Best practice:</strong> For sensitive communications, do BOTH — encrypt for confidentiality, then sign for authenticity. This is exactly what protocols like S/MIME, PGP, and secure messaging apps do under the hood.
                 </div>
               </div>
             </div>
@@ -979,20 +972,22 @@
               <div class="edu-card-header">
                 <div class="edu-card-icon">🌍</div>
                 <div>
-                  <div class="edu-card-title">Real-World Uses of Digital Signatures</div>
-                  <div class="edu-card-subtitle">They're everywhere</div>
+                  <div class="edu-card-title">Signatures Are Everywhere</div>
+                  <div class="edu-card-subtitle">You relied on them hundreds of times today</div>
                 </div>
               </div>
               <div class="edu-card-body">
-                <p><strong>Software updates:</strong> Your phone verifies that iOS/Android updates really come from Apple/Google.</p>
-                <p><strong>HTTPS/TLS:</strong> Websites prove their identity to your browser using certificates signed by trusted authorities.</p>
-                <p><strong>Cryptocurrency:</strong> Bitcoin transactions are signed to prove you own the coins you're spending.</p>
-                <p><strong>Legal documents:</strong> DocuSign and similar services use digital signatures for contracts.</p>
-                <p><strong>Email:</strong> S/MIME and PGP let you sign emails to prove authorship.</p>
+                <p><strong>Every website you visited today</strong> — your browser verified a signature chain (HTTPS certificates) to confirm the site is real, not an impersonator. That padlock icon is a passed signature check.</p>
+                <p><strong>Every app update you installed</strong> — iOS, Android, Windows, and macOS all verify digital signatures on updates before installing them. Without this, malware could masquerade as a system update.</p>
+                <p><strong>Every cryptocurrency transaction</strong> — Bitcoin, Ethereum, and every blockchain use signatures to prove that the person spending coins actually owns them. No signature, no transaction.</p>
+                <p><strong>Every commit in this project's git history</strong> — git supports signing commits to prove the code change came from who it claims to be from, preventing supply-chain attacks.</p>
+                <div class="edu-highlight">
+                  <strong>Signatures are the internet's trust layer.</strong> Without them, you couldn't distinguish a real bank website from a fake one, a legitimate software update from malware, or a valid transaction from a forged one.
+                </div>
               </div>
               <div class="edu-meta">
-                <span class="edu-tag pro">Ubiquitous</span>
-                <span class="edu-tag">Critical infrastructure</span>
+                <span class="edu-tag pro">Billions of verifications per day</span>
+                <span class="edu-tag">Trust infrastructure</span>
               </div>
             </div>
 
@@ -1002,19 +997,20 @@
                 <div class="edu-card-icon">⚠️</div>
                 <div>
                   <div class="edu-card-title">Why Post-Quantum Signatures Matter</div>
-                  <div class="edu-card-subtitle">The long-term threat</div>
+                  <div class="edu-card-subtitle">The threat is different — and in some ways worse — than for encryption</div>
                 </div>
               </div>
               <div class="edu-card-body">
-                <p>Current signature algorithms (RSA, ECDSA, EdDSA) will be broken by quantum computers. This matters even for signatures created TODAY:</p>
+                <p>Encryption has a "harvest now, decrypt later" problem. Signatures have something arguably worse: <strong>retroactive forgery</strong>.</p>
+                <p>Current signature algorithms (RSA, ECDSA, EdDSA) will be broken by quantum computers. Once broken, an attacker doesn't just read old messages — they can <em>create new signatures that look like they were made in the past</em>. They could forge a contract you never signed. Backdate a fraudulent transaction. Impersonate your code-signing identity on software released years ago.</p>
                 <div class="edu-highlight">
-                  <strong>The threat:</strong> An attacker could keep a signed document, then later (when quantum computers exist) forge a "backdated" signature. They could claim you signed something you never signed.
+                  <strong>For anything with long-term legal or security value</strong> — property records, corporate contracts, code-signing certificates, patent filings, medical records — the signatures need to survive the arrival of quantum computers. That means using post-quantum algorithms <em>now</em>, not later.
                 </div>
-                <p>For long-lived signatures (legal contracts, property records, code signing), we need post-quantum signatures NOW — not just when quantum computers arrive.</p>
+                <p>ML-DSA-65 (used in this tool) is NIST's answer: a signature algorithm built on lattice math that remains secure against both classical and quantum attacks, based on current mathematical understanding.</p>
               </div>
               <div class="edu-meta">
-                <span class="edu-tag con">Future threat</span>
-                <span class="edu-tag pro">ML-DSA is the solution</span>
+                <span class="edu-tag con">Retroactive forgery threat</span>
+                <span class="edu-tag pro">ML-DSA is the countermeasure</span>
               </div>
             </div>
           </div>

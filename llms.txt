@@ -3,13 +3,15 @@
 # Last updated: 2026-02-06
 
 ## Project
-Quantum Vault is a production-grade, client-side post-quantum encryption
-application. It runs entirely in the browser with zero server-side code,
-zero data collection, and zero tracking.
+Quantum Vault is an experimental, educational client-side post-quantum
+encryption demo. It runs entirely in the browser with zero server-side
+code, zero data collection, and zero tracking. It has NOT been
+independently audited and should not be used for high-stakes encryption
+without professional security review.
 
 ## Purpose
-Provide accessible, educational, and production-ready post-quantum
-cryptographic tools including:
+Provide accessible, educational post-quantum cryptographic tools
+(not audited for production use) including:
 - Key generation (X-Wing hybrid KEM, ML-DSA-65 signatures)
 - File encryption / decryption (X-Wing + HKDF-SHA256 + AES-256-GCM)
 - Message signing / verification (ML-DSA-65, NIST FIPS 204)
@@ -44,11 +46,22 @@ cryptographic tools including:
 - All keys exist only in browser memory during session
 - RFC 9116 security.txt for vulnerability disclosure
 
-## Compliance Alignment
+## Standards Referenced
 - NIST post-quantum standards (FIPS 203, FIPS 204)
 - OWASP security headers best practices
 - RFC 9116 (security.txt)
 - Privacy by design (zero data collection)
+
+## Known Limitations
+- Not independently security-audited
+- X-Wing is an IETF draft, not a finalized standard
+- @noble/post-quantum is pre-1.0 (v0.5.2)
+- Keys displayed in DOM (visible to browser extensions, screen capture)
+- Clipboard copy not secure against other applications
+- JavaScript cannot securely erase key material from memory
+- .pqenc metadata (filename, size, timestamp) stored in plaintext
+- Crypto loaded from CDN without Subresource Integrity (SRI) hashes
+- No key management or secure key storage built in
 
 ## File Structure
 - index.html — UI markup and inline CSS

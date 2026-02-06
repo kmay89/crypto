@@ -1,15 +1,26 @@
 /* ============================================================
- *  QUANTUM VAULT — Production-Grade Post-Quantum Encryption
+ *  QUANTUM VAULT — Experimental Post-Quantum Encryption Demo
  *  main.js  |  All client-side cryptographic logic
  *
+ *  STATUS: Educational / experimental demo. Not independently
+ *          audited. Do not use for high-stakes encryption
+ *          without professional security review.
+ *
  *  Algorithms
- *    KEM  : X-Wing  (ML-KEM-768 + X25519, IETF Draft)
+ *    KEM  : X-Wing  (ML-KEM-768 + X25519, IETF Draft — not final)
  *    DSA  : ML-DSA-65  (FIPS 204, NIST Category 3)
  *    AEAD : AES-256-GCM  (Web Crypto API)
  *    KDF  : HKDF-SHA256  (RFC 5869)
  *
  *  Dependencies
- *    @noble/post-quantum 0.5.2  (esm.sh CDN)
+ *    @noble/post-quantum 0.5.2  (esm.sh CDN, pre-1.0, no SRI)
+ *
+ *  Known limitations
+ *    - Keys displayed in DOM (visible to extensions, screen capture)
+ *    - Clipboard copy is not secure against other applications
+ *    - JS cannot securely erase key material from memory
+ *    - .pqenc metadata (filename, size, timestamp) is not encrypted
+ *    - CDN-loaded crypto has no Subresource Integrity verification
  * ============================================================ */
 
 import { XWing } from 'https://esm.sh/@noble/post-quantum@0.5.2/hybrid.js';

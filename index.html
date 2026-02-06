@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUANTUM VAULT | Production-Grade Post-Quantum Encryption</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #0a0a0f;
+      --bg-card: #12121a;
+      --bg-elevated: #1a1a25;
+      --accent-cyan: #00f5ff;
+      --accent-magenta: #ff00aa;
+      --accent-violet: #8b5cf6;
+      --accent-green: #00ff88;
+      --accent-orange: #ff6b35;
+      --accent-red: #ff3366;
+      --accent-gold: #ffd700;
+      --text-primary: #ffffff;
+      --text-secondary: #8888aa;
+      --text-dim: #555566;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Space Mono', monospace; background: var(--bg-deep); color: var(--text-primary); min-height: 100vh; }
+    .bg-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(0,245,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,255,0.02) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; }
+    .app { position: relative; z-index: 10; min-height: 100vh; display: flex; flex-direction: column; }
+    
+    header { padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); flex-wrap: wrap; gap: 1rem; }
+    .logo { display: flex; align-items: center; gap: 1rem; }
+    .logo-icon { width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet)); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+    .logo-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; letter-spacing: 0.1em; }
+    .logo-text span { color: var(--accent-cyan); }
+    .badges { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .badge { padding: 0.4rem 0.8rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; border: 1px solid; }
+    .badge.gold { border-color: var(--accent-gold); color: var(--accent-gold); background: rgba(255,215,0,0.1); }
+    .badge.green { border-color: var(--accent-green); color: var(--accent-green); }
+    .badge.violet { border-color: var(--accent-violet); color: var(--accent-violet); }
+
+    .loading { position: fixed; inset: 0; background: var(--bg-deep); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; transition: opacity 0.5s; }
+    .loading.hidden { opacity: 0; pointer-events: none; }
+    .spinner { width: 50px; height: 50px; border: 3px solid var(--bg-elevated); border-top-color: var(--accent-cyan); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.9rem; }
+    .loading-sub { margin-top: 0.5rem; color: var(--text-dim); font-size: 0.75rem; }
+
+    main { flex: 1; padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+    
+    .tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 2rem; overflow-x: auto; }
+    .tab { padding: 1rem 1.5rem; background: transparent; border: none; font-family: 'Syne', sans-serif; font-weight: 600; font-size: 0.85rem; letter-spacing: 0.08em; color: var(--text-dim); cursor: pointer; position: relative; white-space: nowrap; transition: color 0.3s; }
+    .tab:hover { color: var(--text-secondary); }
+    .tab.active { color: var(--accent-cyan); }
+    .tab.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--accent-cyan); }
+
+    .panel { display: none; animation: fadeIn 0.3s; }
+    .panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+    .card { background: var(--bg-card); border: 1px solid rgba(255,255,255,0.06); padding: 1.75rem; }
+    .card-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; }
+    .card-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.15rem; }
+    .card-sub { font-size: 0.7rem; color: var(--text-dim); margin-top: 0.2rem; }
+    .card-badge { padding: 0.2rem 0.6rem; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; border: 1px solid var(--accent-gold); color: var(--accent-gold); }
+
+    .info-box { background: var(--bg-elevated); padding: 1rem; margin-bottom: 1.25rem; font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6; border-left: 3px solid var(--accent-violet); }
+    .info-box strong { color: var(--accent-cyan); }
+    .info-box code { color: var(--accent-green); background: rgba(0,255,136,0.1); padding: 0.1rem 0.25rem; font-size: 0.72rem; }
+
+    .security-features { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.25rem; }
+    .sec-feat { display: flex; align-items: center; gap: 0.5rem; font-size: 0.72rem; color: var(--text-secondary); }
+    .sec-feat .icon { color: var(--accent-green); }
+
+    .btn { width: 100%; padding: 0.9rem; font-family: 'Syne', sans-serif; font-weight: 600; font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase; background: transparent; border: 2px solid var(--accent-cyan); color: var(--accent-cyan); cursor: pointer; transition: all 0.3s; }
+    .btn:hover:not(:disabled) { background: var(--accent-cyan); color: var(--bg-deep); box-shadow: 0 0 25px rgba(0,245,255,0.3); }
+    .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .btn.gold { border-color: var(--accent-gold); color: var(--accent-gold); }
+    .btn.gold:hover:not(:disabled) { background: var(--accent-gold); box-shadow: 0 0 25px rgba(255,215,0,0.3); }
+    .btn.green { border-color: var(--accent-green); color: var(--accent-green); }
+    .btn.green:hover:not(:disabled) { background: var(--accent-green); box-shadow: 0 0 25px rgba(0,255,136,0.3); }
+    .btn.magenta { border-color: var(--accent-magenta); color: var(--accent-magenta); }
+    .btn.magenta:hover:not(:disabled) { background: var(--accent-magenta); box-shadow: 0 0 25px rgba(255,0,170,0.3); }
+
+    .key-out { margin-top: 1.25rem; display: none; }
+    .key-out.visible { display: block; }
+    .key-section { margin-bottom: 0.75rem; }
+    .key-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
+    .key-label { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+    .key-size { font-size: 0.65rem; color: var(--accent-cyan); }
+    .key-copy { padding: 0.2rem 0.4rem; background: transparent; border: 1px solid var(--text-dim); color: var(--text-dim); font-size: 0.6rem; cursor: pointer; transition: all 0.3s; }
+    .key-copy:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+    .key-val { background: var(--bg-elevated); padding: 0.6rem; font-size: 0.65rem; color: var(--accent-green); word-break: break-all; max-height: 70px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.03); }
+    .key-val.private { color: var(--accent-orange); }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); }
+    @media (max-width: 500px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+    .stat { text-align: center; }
+    .stat-val { font-size: 0.9rem; font-weight: 700; color: var(--accent-cyan); }
+    .stat-label { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; }
+
+    .dropzone { border: 2px dashed rgba(255,255,255,0.15); padding: 2.5rem 1.5rem; text-align: center; cursor: pointer; margin-bottom: 1.25rem; transition: all 0.3s; }
+    .dropzone:hover, .dropzone.drag { border-color: var(--accent-cyan); background: rgba(0,245,255,0.03); }
+    .drop-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .drop-text { color: var(--text-secondary); margin-bottom: 0.4rem; font-size: 0.85rem; }
+    .drop-hint { font-size: 0.7rem; color: var(--text-dim); }
+
+    .file-info { background: var(--bg-elevated); padding: 0.75rem; margin-bottom: 1.25rem; display: none; align-items: center; gap: 0.75rem; }
+    .file-info.visible { display: flex; }
+    .file-icon { font-size: 1.5rem; }
+    .file-details { flex: 1; }
+    .file-name { font-size: 0.85rem; margin-bottom: 0.15rem; }
+    .file-size { font-size: 0.7rem; color: var(--text-dim); }
+    .file-remove { padding: 0.4rem 0.6rem; background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red); cursor: pointer; font-size: 0.75rem; }
+
+    .input-group { margin-bottom: 1.25rem; }
+    .input-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+    .input { width: 100%; padding: 0.7rem; background: var(--bg-elevated); border: 1px solid rgba(255,255,255,0.08); color: var(--text-primary); font-family: 'Space Mono', monospace; font-size: 0.78rem; }
+    .input:focus { outline: none; border-color: var(--accent-cyan); }
+    .input::placeholder { color: var(--text-dim); }
+    .textarea { min-height: 100px; resize: vertical; }
+
+    .progress { display: none; margin-top: 1.25rem; }
+    .progress.visible { display: block; }
+    .progress-head { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 0.4rem; }
+    .progress-bar { height: 4px; background: var(--bg-elevated); }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-violet)); transition: width 0.3s; }
+
+    .result { display: none; margin-top: 1.25rem; padding: 1.25rem; background: rgba(0,255,136,0.08); border: 1px solid var(--accent-green); }
+    .result.visible { display: block; }
+    .result.error { background: rgba(255,51,102,0.08); border-color: var(--accent-red); }
+    .result-head { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem; }
+    .result-icon { font-size: 1.25rem; }
+    .result-title { font-family: 'Syne', sans-serif; font-weight: 600; color: var(--accent-green); font-size: 0.95rem; }
+    .result.error .result-title { color: var(--accent-red); }
+    .result-btn { padding: 0.5rem 1rem; background: var(--accent-green); border: none; color: var(--bg-deep); font-family: 'Space Mono', monospace; font-size: 0.75rem; cursor: pointer; font-weight: 600; }
+    .result-btn:hover { opacity: 0.85; }
+
+    .sig-out { background: var(--bg-elevated); padding: 1rem; margin-top: 1.25rem; display: none; }
+    .sig-out.visible { display: block; }
+    .sig-label { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 0.4rem; }
+    .sig-val { font-size: 0.65rem; color: var(--accent-magenta); word-break: break-all; max-height: 90px; overflow-y: auto; }
+
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; padding: 0.9rem 1.25rem; background: var(--bg-card); border: 1px solid var(--accent-cyan); font-size: 0.8rem; transform: translateY(100px); opacity: 0; transition: all 0.3s; z-index: 100; max-width: 350px; }
+    .toast.visible { transform: translateY(0); opacity: 1; }
+    .toast.error { border-color: var(--accent-red); }
+
+    .warning-box { background: rgba(255,107,53,0.1); border: 1px solid var(--accent-orange); padding: 1rem; margin-bottom: 1.25rem; font-size: 0.75rem; color: var(--accent-orange); }
+    .warning-box strong { display: block; margin-bottom: 0.3rem; }
+
+    /* Education Section Styles */
+    .education-section { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.08); }
+    .edu-header { text-align: center; margin-bottom: 2.5rem; }
+    .edu-header h2 { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .edu-header h2 span { color: var(--accent-cyan); }
+    .edu-header p { color: var(--text-secondary); font-size: 0.85rem; max-width: 600px; margin: 0 auto; }
+
+    .edu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+
+    .edu-card { background: var(--bg-card); border: 1px solid rgba(255,255,255,0.06); padding: 1.5rem; transition: border-color 0.3s; }
+    .edu-card:hover { border-color: rgba(255,255,255,0.15); }
+    
+    .edu-card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    .edu-card-icon { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; background: var(--bg-elevated); border-radius: 8px; }
+    .edu-card-title { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 1rem; }
+    .edu-card-subtitle { font-size: 0.7rem; color: var(--text-dim); margin-top: 0.15rem; }
+
+    .edu-card-body { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.7; }
+    .edu-card-body p { margin-bottom: 0.75rem; }
+    .edu-card-body p:last-child { margin-bottom: 0; }
+
+    .edu-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); }
+    .edu-tag { padding: 0.25rem 0.5rem; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-elevated); color: var(--text-dim); }
+    .edu-tag.pro { background: rgba(0,255,136,0.1); color: var(--accent-green); }
+    .edu-tag.con { background: rgba(255,51,102,0.1); color: var(--accent-red); }
+    .edu-tag.year { background: rgba(139,92,246,0.1); color: var(--accent-violet); }
+
+    .edu-highlight { background: rgba(0,245,255,0.08); border-left: 3px solid var(--accent-cyan); padding: 0.75rem 1rem; margin: 0.75rem 0; font-size: 0.78rem; }
+    .edu-highlight strong { color: var(--accent-cyan); }
+
+    .edu-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+    @media (max-width: 500px) { .edu-comparison { grid-template-columns: 1fr; } }
+    .edu-comp-col h4 { font-size: 0.75rem; color: var(--accent-green); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .edu-comp-col.weak h4 { color: var(--accent-red); }
+    .edu-comp-col ul { list-style: none; font-size: 0.75rem; color: var(--text-secondary); }
+    .edu-comp-col ul li { padding: 0.25rem 0; padding-left: 1rem; position: relative; }
+    .edu-comp-col ul li::before { content: '✓'; position: absolute; left: 0; color: var(--accent-green); }
+    .edu-comp-col.weak ul li::before { content: '✗'; color: var(--accent-red); }
+
+    .timeline { position: relative; padding-left: 1.5rem; margin-top: 1rem; }
+    .timeline::before { content: ''; position: absolute; left: 0.4rem; top: 0.5rem; bottom: 0.5rem; width: 2px; background: var(--bg-elevated); }
+    .timeline-item { position: relative; padding-bottom: 0.75rem; }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-item::before { content: ''; position: absolute; left: -1.1rem; top: 0.35rem; width: 8px; height: 8px; background: var(--accent-violet); border-radius: 50%; }
+    .timeline-year { font-size: 0.7rem; color: var(--accent-violet); font-weight: 700; }
+    .timeline-text { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.15rem; }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">Initializing Production Cryptography...</div>
+    <div class="loading-sub">Loading X-Wing (ML-KEM-768 + X25519) &amp; ML-DSA</div>
+  </div>
+
+  <div class="app">
+    <header>
+      <div class="logo">
+        <div class="logo-icon">🛡️</div>
+        <div class="logo-text">QUANTUM<span>VAULT</span></div>
+      </div>
+      <div class="badges">
+        <div class="badge gold">Production Grade</div>
+        <div class="badge green">X-Wing Hybrid KEM</div>
+        <div class="badge violet">IETF Draft Standard</div>
+      </div>
+    </header>
+
+    <main>
+      <nav class="tabs">
+        <button class="tab active" data-tab="keygen">Generate Keys</button>
+        <button class="tab" data-tab="encrypt">Encrypt / Decrypt</button>
+        <button class="tab" data-tab="sign">Sign / Verify</button>
+      </nav>
+
+      <!-- KEY GENERATION -->
+      <div class="panel active" id="panel-keygen">
+        <div class="grid">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">X-Wing Hybrid KEM</div>
+                <div class="card-sub">ML-KEM-768 + X25519 | IETF Draft</div>
+              </div>
+              <div class="card-badge">Hybrid</div>
+            </div>
+            
+            <div class="info-box">
+              <strong>X-Wing</strong> combines <code>ML-KEM-768</code> (post-quantum) with <code>X25519</code> (classical) 
+              using SHA3-256 as the combiner. Secure if <em>either</em> algorithm remains secure.
+            </div>
+
+            <div class="security-features">
+              <div class="sec-feat"><span class="icon">✓</span> IND-CCA2 secure</div>
+              <div class="sec-feat"><span class="icon">✓</span> Formally proven</div>
+              <div class="sec-feat"><span class="icon">✓</span> 128-bit classical</div>
+              <div class="sec-feat"><span class="icon">✓</span> Post-quantum safe</div>
+            </div>
+
+            <button class="btn gold" id="xwing-btn" onclick="genXWing()">Generate X-Wing Keypair</button>
+
+            <div class="key-out" id="xwing-keys">
+              <div class="key-section">
+                <div class="key-head">
+                  <span class="key-label">Public Key <span class="key-size" id="xwing-pk-sz"></span></span>
+                  <button class="key-copy" onclick="copyEl('xwing-pk')">Copy</button>
+                </div>
+                <div class="key-val" id="xwing-pk"></div>
+              </div>
+              <div class="key-section">
+                <div class="key-head">
+                  <span class="key-label">Secret Key <span class="key-size" id="xwing-sk-sz"></span></span>
+                  <button class="key-copy" onclick="copyEl('xwing-sk')">Copy</button>
+                </div>
+                <div class="key-val private" id="xwing-sk"></div>
+              </div>
+              <div class="stats" id="xwing-stats"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">ML-DSA-65 Signatures</div>
+                <div class="card-sub">NIST FIPS 204 | 192-bit security</div>
+              </div>
+              <div class="card-badge">Signatures</div>
+            </div>
+            
+            <div class="info-box">
+              <strong>ML-DSA-65</strong> (Dilithium) provides unforgeable digital signatures.
+              NIST Category 3 security (~AES-192). Lattice-based, standardized in FIPS 204.
+            </div>
+
+            <div class="security-features">
+              <div class="sec-feat"><span class="icon">✓</span> EUF-CMA secure</div>
+              <div class="sec-feat"><span class="icon">✓</span> NIST standardized</div>
+              <div class="sec-feat"><span class="icon">✓</span> 192-bit security</div>
+              <div class="sec-feat"><span class="icon">✓</span> Quantum resistant</div>
+            </div>
+
+            <button class="btn magenta" id="dsa-btn" onclick="genDSA()">Generate ML-DSA-65 Keypair</button>
+
+            <div class="key-out" id="dsa-keys">
+              <div class="key-section">
+                <div class="key-head">
+                  <span class="key-label">Public Key <span class="key-size" id="dsa-pk-sz"></span></span>
+                  <button class="key-copy" onclick="copyEl('dsa-pk')">Copy</button>
+                </div>
+                <div class="key-val" id="dsa-pk"></div>
+              </div>
+              <div class="key-section">
+                <div class="key-head">
+                  <span class="key-label">Secret Key <span class="key-size" id="dsa-sk-sz"></span></span>
+                  <button class="key-copy" onclick="copyEl('dsa-sk')">Copy</button>
+                </div>
+                <div class="key-val private" id="dsa-sk"></div>
+              </div>
+              <div class="stats" id="dsa-stats"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EDUCATION SECTION FOR KEYGEN -->
+        <div class="education-section">
+          <div class="edu-header">
+            <h2>📚 Understanding <span>Cryptographic Keys</span></h2>
+            <p>Everything you need to know about the cryptography protecting your data, explained in plain language.</p>
+          </div>
+
+          <div class="edu-grid">
+            <!-- What is a Key? -->
+            <div class="edu-card">
+              <div class="edu-card-header">
+                <div class="edu-card-icon">🔑</div>
+                <div>
+                  <div class="edu-card-title">What is a Cryptographic Key?</div>
+                  <div class="edu-card-subtitle">The foundation of digital security</div>
+                </div>
+              </div>
+              <div class="edu-card-body">
+                <p>A cryptographic key is like a password, but much longer and randomly generated. It's a piece of data that controls how encryption and decryption work.</p>
+                <p>Think of it like a physical key: only the right key opens the right lock. In cryptography, only the right key can decrypt data that was encrypted with its matching pair.</p>
+                <div class="edu-highlight">
+                  <strong>Public Key:</strong> Share freely — others use it to encrypt messages TO you<br>
+                  <strong>Private Key:</strong> Keep secret — only you can decrypt messages
+                </div>
+              </div>
+              <div class="edu-meta">
+                <span class="edu-tag year">1976</span>
+                <span class="edu-tag">Diffie-Hellman invented</span>
+              </div>
+            </div>
+
+            <!-- What is Post-Quantum? -->
+            <div class="edu-card">
+              <div class="edu-card-header">
+                <div class="edu-card-icon">⚛️</div>
+                <div>
+                  <div class="edu-card-title">What is Post-Quantum Cryptography?</div>
+                  <div class="edu-card-subtitle">Protection against future quantum computers</div>
+                </div>
+              </div>
+              <div class="edu-card-body">
+                <p>Quantum computers can break most encryption used today (RSA, ECC) using Shor's algorithm. Post-quantum cryptography uses math problems that even quantum computers can't solve efficiently.</p>
+                <p>The main approaches are: lattice-based (used here), hash-based, code-based, and isogeny-based. NIST standardized the first algorithms in 2024 after 8 years of evaluation.</p>
+                <div class="edu-highlight">
+                  <strong>Why now?</strong> "Harvest now, decrypt later" — adversaries may be storing encrypted data today to decrypt once quantum computers exist.
+                </div>
+              </div>
+              <div class="edu-meta">
+                <span class="edu-tag year">2016-2024</span>
+                <span class="edu-tag">NIST competition</span>
+                <span class="edu-tag">Lattice-based</span>
+              </div>
+            </div>
+
+            <!-- What is X-Wing? -->
+            <div class="edu-card">
+              <div class="edu-card-header">
+                <div class="edu-card-icon">🦅</div>
+                <div>
+                  <div class="edu-card-title">What is X-Wing?</div>
+                  <div class="edu-card-subtitle">The hybrid approach to quantum safety</div>
+                </div>
+              </div>
+              <div class="edu-card-body">
+                <p><strong>X-Wing</strong> is a "hybrid" Key Encapsulation Mechanism (KEM). It combines two algorithms: ML-KEM-768 (post-quantum) and X25519 (classical elliptic curve).</p>
+                <p>The brilliant part: it's secure if <em>either</em> algorithm is secure. If quantum computers break X25519, ML-KEM protects you. If someone finds a flaw in ML-KEM, X25519 protects you.</p>
+                <div class="timeline">
+                  <div class="timeline-item"><span class="timeline-year">2024</span><div class="timeline-text">X-Wing specification published</div></div>
+                  <div class="timeline-item"><span class="timeline-year">2024</span><div class="timeline-text">Formal security proof completed</div></div>
+                  <div class="timeline-item"><span class="timeline-year">2025</span><div class="timeline-text">IETF draft standardization</div></div>
+                </div>
+              </div>
+              <div class="edu-meta">
+                <span class="edu-tag pro">Hybrid security</span>
+                <span class="edu-tag pro">Formally proven</span>
+                <span class="edu-tag">IETF draft</span>
+              </div>
+            </div>
+
+            <!-- What is ML-KEM? -->
+            <div class="edu-card">
+              <div class="edu-card-header">
+                <div class="edu-card-icon">🔷</div>
+                <div>
+                  <div class="edu-card-title">What is ML-KEM (Kyber)?</div>
+                  <div class="edu-card-subtitle">NIST's primary post-quantum encryption standard</div>
+                </div>
+              </div>
+              <div class="edu-card-body">
+                <p><strong>ML-KEM</strong> (Module Lattice Key Encapsulation Mechanism), formerly called Kyber, is the first NIST-standardized post-quantum encryption algorithm (FIPS 203).</p>
+                <p>It's based on the "Learning With Errors" (LWE) problem over module lattices. Imagine a grid in many dimensions — finding short vectors in this grid is computationally hard, even for quantum computers.</p>
+                <div class="edu-comparison">
+                  <div class="edu-comp-col">
+                    <h4>Strengths</h4>
+                    <ul>
+                      <li>NIST standardized (2024)</li>
+                      <li>Fast key generation</li>
+                      <li>Small keys/ciphertexts</li>
+                      <li>Well-studied security</li>
+                    </ul>
+                  </div>
+                  <div class="edu-comp-col weak">
+                    <h4>Considerations</h4>
+                    <ul>
+                      <li>Larger than classical keys</li>
+                      <li>Relatively new (less tested)</li>
+                      <li>Implementation complexity</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="edu-meta">
+                <span class="edu-tag year">2024</span>
+                <span class="edu-tag">FIPS 203</span>
+                <span class="edu-tag">Lattice-based</span>
+              </div>
+            </div>
+
+            <!-- What is ML-DSA? -->
+            <div class="edu-card">
+              <div class="edu-card-header">
+                <div class="edu-card-icon">✍️</div>
+                <div>
+                  <div class="edu-card-title">What is ML-DSA (Dilithium)?</div>
+                  <div class="edu-card-subtitle">Post-quantum digital signatures</div>
+                </div>
+              </div>
+              <div class="edu-card-body">
+                <p><strong>ML-DSA</strong> (Module Lattice Digital Signature Algorithm), formerly Dilithium, is NIST's primary post-quantum signature standard (FIPS 204).</p>
+                <p>Digital signatures prove authenticity — that a message really came from who it claims to be from, and wasn't modified. Think of it like a handwritten signature, but mathematically unforgeable.</p>
+                <div class="edu-highlight">
+                  <strong>ML-DSA-65</strong> provides Category 3 security (equivalent to AES-192). It's the recommended level for most applications.
+                </div>
+              </div>
+              <div class="edu-meta">
+                <span class="edu-tag year">2024</span>
+                <span class="edu-tag">FIPS 204</span>
+                <span class="edu-tag pro">Unforgeable</span>
+              </div>
+            </div>
+
+            <!-- What is X25519? -->
+            <div class="edu-card">
+              <div class="edu-card-header">
+                <div class="edu-card-icon">📈</div>
+                <div>
+                  <div class="edu-card-title">What is X25519?</div>
+                  <div class="edu-card-subtitle">The gold standard of classical key exchange</div>
+                </div>
+              </div>
+              <div class="edu-card-body">
+                <p><strong>X25519</strong> is an elliptic curve Diffie-Hellman function designed by Daniel J. Bernstein in 2005. It's used in TLS, Signal, WhatsApp, SSH, and countless other protocols.</p>
+                <p>It provides 128-bit security with only 32-byte keys — extremely compact and fast. However, it IS vulnerable to quantum computers, which is why we combine it with ML-KEM.</p>
+                <div class="edu-comparison">
+                  <div class="edu-comp-col">
+                    <h4>Strengths</h4>
+                    <ul>
+                      <li>Battle-tested since 2005</li>
+                      <li>Extremely fast</li>
+                      <li>Tiny 32-byte keys</li>
+                      <li>Constant-time implementation</li>
+                    </ul>
+                  </div>
+                  <div class="edu-comp-col weak">
+                    <h4>Weaknesses</h4>
+                    <ul>
+                      <li>Broken by quantum computers</li>
+                      <li>Shor's algorithm threat</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="edu-meta">
+                <span class="edu-tag year">2005</span>
+                <span class="edu-tag">Curve25519</span>
+                <span class="edu-tag con">Quantum vulnerable</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ENCRYPT/DECRYPT -->
+      <div class="panel" id="panel-encrypt">
+        <div class="grid">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Encrypt File</div>
+                <div class="card-sub">X-Wing KEM + AES-256-GCM</div>
+              </div>
+            </div>
+
+            <div class="info-box">
+              Hybrid encryption: X-Wing encapsulates a shared secret, then HKDF derives an AES-256-GCM key.
+              Authenticated encryption with associated data (AEAD).
+            </div>
+
+            <div class="dropzone" id="enc-drop" onclick="document.getElementById('enc-file').click()">
+              <div class="drop-icon">📁</div>
+              <div class="drop-text">Drop file or click to select</div>
+              <div class="drop-hint">Any file type supported</div>
+            </div>
+            <input type="file" id="enc-file" style="display:none">
+
+            <div class="file-info" id="enc-finfo">
+              <div class="file-icon">📄</div>
+              <div class="file-details">
+                <div class="file-name" id="enc-fname"></div>
+                <div class="file-size" id="enc-fsize"></div>
+              </div>
+              <button class="file-remove" onclick="clearEncFile()">✕</button>
+            </div>
+
+            <div class="input-group">
+              <div class="input-label">Recipient's X-Wing Public Key (hex)</div>
+              <input class="input" id="enc-pk" placeholder="Paste 1216-byte X-Wing public key...">
+            </div>
+
+            <button class="btn green" id="enc-btn" onclick="encryptFile()" disabled>🔒 Encrypt File</button>
+
+            <div class="progress" id="enc-prog">
+              <div class="progress-head"><span>Encrypting...</span><span id="enc-pct">0%</span></div>
+              <div class="progress-bar"><div class="progress-fill" id="enc-fill"></div></div>
+            </div>
+
+            <div class="result" id="enc-result">
+              <div class="result-head">
+                <div class="result-icon">✓</div>
+                <div class="result-title">Encrypted Successfully</div>
+              </div>
+              <button class="result-btn" onclick="downloadEnc()">Download .pqenc</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Decrypt File</div>
+                <div class="card-sub">Requires your X-Wing secret key</div>
+              </div>
+            </div>
+
+            <div class="dropzone" id="dec-drop" onclick="document.getElementById('dec-file').click()">
+              <div class="drop-icon">🔐</div>
+              <div class="drop-text">Drop .pqenc file</div>
+              <div class="drop-hint">QuantumVault encrypted file</div>
+            </div>
+            <input type="file" id="dec-file" accept=".pqenc" style="display:none">
+
+            <div class="file-info" id="dec-finfo">
+              <div class="file-icon">🔐</div>
+              <div class="file-details">
+                <div class="file-name" id="dec-fname"></div>
+                <div class="file-size" id="dec-fsize"></div>
+              </div>
+              <button class="file-remove" onclick="clearDecFile()">✕</button>
+            </div>
+
+            <div class="input-group">
+              <div class="input-label">Your X-Wing Secret Key (hex)</div>
+              <input class="input" id="dec-sk" placeholder="Paste 32-byte X-Wing secret key...">
+            </div>
+
+            <button class="btn" id="dec-btn" onclick="decryptFile()" disabled>🔓 Decrypt File</button>
+
+            <div class="progress" id="dec-prog">
+              <div class="progress-head"><span>Decrypting...</span><span id="dec-pct">0%</span></div>
+              <div class="progress-bar"><div class="progress-fill" id="dec-fill"></div></div>
+            </div>
+
+            <div class="result" id="dec-result">
+              <div class="result-head">
+                <div class="result-icon" id="dec-icon">✓</div>
+                <div class="result-title" id="dec-title">Decrypted Successfully</div>
+              </div>
+              <button class="result-btn" onclick="downloadDec()">Download Original</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- EDUCATION SECTION FOR ENCRYPTION -->
+        <div class="education-section">
+          <div class="edu-header">
+            <h2>📚 Understanding <span>Encryption</span></h2>
+            <p>How your files are protected with multiple layers of cryptographic security.</p>
+          </div>
+
+          <div class="edu-grid">
+            <!-- What is Encryption? -->
+            <div class="edu-card">
+              <div class="edu-card-header">
+                <div class="edu-card-icon">🔒</div>
+                <div>
+                  <div class="edu-card-title">What is Encryption?</div>
+                  <div class="edu-card-subtitle">Turning readable data into gibberish</div>
+                </div>
+              </div>
+              <div class="edu-card-body">
+                <p>Encryption transforms readable data (plaintext) into unreadable scrambled data (ciphertext) using a mathematical algorithm and a key.</p>
+                <p>Only someone with the correct key can reverse the process (decryption) to recover the original data. Without the key, the data looks like random noise.</p>
+                <div class="edu-highlight">
+                  <strong>Analogy:</strong> It's like writing a letter in a secret language that only you and your friend understand. Anyone who intercepts it just sees nonsense.
+                </div>
+              </div>
+              <div class="edu-meta">
+                <span class="edu-tag year">~2000 BCE</span>
+                <span class="edu-tag">Ancient origins</span>
+              </div>
+            </div>
+
+            <!-- What is a KEM? -->
+            <div class="edu-card">
+              <div class="edu-card-header">
+                <div class="edu-card-icon">📦</div>
+                <div>
+                  <div class="edu-card-title">What is a KEM?</div>
+                  <div class="edu-card-subtitle">Key Encapsulation Mechanism</div>
+                </div>
+              </div>
+              <div class="edu-card-body">
+                <p>A <strong>KEM</strong> is a method to securely share a secret key between two parties. Instead of encrypting data directly with public-key crypto (which is slow), we use the KEM to agree on a shared secret, then use that secret with fast symmetric encryption.</p>
+                <p><strong>How it works:</strong></p>
+                <p>1. Alice generates a random shared secret<br>
+                   2. Alice "encapsulates" it using Bob's public key<br>
+                   3. Bob "decapsulates" using his private key<br>
+                   4. Now both have the same secret!</p>
+              </div>
+              <div class="edu-meta">
+                <span class="edu-tag">Modern approach</span>
+                <span class="edu-tag pro">Efficient</span>
+              </div>
+            </div>
+
+            <!-- What is HKDF? -->
+            <div class="edu-card">
+              <div class="edu-card-header">
+                <div class="edu-card-icon">🧪</div>
+                <div>
+                  <div class="edu-card-title">What is HKDF?</div>
+                  <div class="edu-card-subtitle">Key Derivation Function</div>
+                </div>
+              </div>
+              <div class="edu-card-body">
+                <p><strong>HKDF</strong> (HMAC-based Key Derivation Function) takes a shared secret and "stretches" or "derives" it into one or more cryptographically strong keys.</p>
+                <p>Even if the original secret has some weaknesses or patterns, HKDF produces keys that look completely random and are safe to use for encryption.</p>
+                <div class="edu-highlight">
+                  <strong>We use:</strong> HKDF-SHA256 with a random salt and domain separator ("QuantumVault-v1-AES256GCM") to derive our AES encryption key.
+                </div>
+              </div>
+              <div class="edu-meta">
+                <span class="edu-tag year">2010</span>
+                <span class="edu-tag">RFC 5869</span>
+                <span class="edu-tag pro">Industry standard</span>
+              </div>
+            </div>
+
+            <!-- What is AES-GCM? -->
+            <div class="edu-card">
+              <div class="edu-card-header">
+                <div class="edu-card-icon">🛡️</div>
+                <div>
+                  <div class="edu-card-title">What is AES-256-GCM?</div>
+                  <div class="edu-card-subtitle">Authenticated Encryption</div>
+                </div>
+              </div>
+              <div class="edu-card-body">
+                <p><strong>AES</strong> (Advanced Encryption Standard) is the most widely used symmetric encryption algorithm. "256" means 256-bit keys — effectively unbreakable even with quantum computers (Grover's algorithm only halves security to 128-bit).</p>
+                <p><strong>GCM</strong> (Galois/Counter Mode) adds authentication — it detects if anyone tampered with the encrypted data. This is called "AEAD" (Authenticated Encryption with Associated Data).</p>
+                <div class="edu-comparison">
+                  <div class="edu-comp-col">
+                    <h4>Provides</h4>
+                    <ul>
+                      <li>Confidentiality (secrecy)</li>
+                      <li>Integrity (tamper detection)</li>
+                      <li>Fast hardware acceleration</li>
+                    </ul>
+                  </div>
+                  <div class="edu-comp-col weak">
+                    <h4>Requirements</h4>
+                    <ul>
+                      <li>Never reuse nonce with same key</li>
+                      <li>Limited to ~64GB per encryption</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="edu-meta">
+                <span class="edu-tag year">2001</span>
+                <span class="edu-tag">FIPS 197</span>
+                <span class="edu-tag pro">Quantum-safe</span>
+              </div>
+            </div>
+
+            <!-- Hybrid Encryption Flow -->
+            <div class="edu-card">
+              <div class="edu-card-header">
+                <div class="edu-card-icon">🔄</div>
+                <div>
+                  <div class="edu-card-title">How Hybrid Encryption Works</div>
+                  <div class="edu-card-subtitle">The complete flow</div>
+                </div>
+              </div>
+              <div class="edu-card-body">
+                <p>We combine asymmetric (public-key) and symmetric encryption for the best of both worlds:</p>
+                <div class="timeline">
+                  <div class="timeline-item"><span class="timeline-year">Step 1</span><div class="timeline-text">X-Wing encapsulates a 32-byte shared secret using recipient's public key</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Step 2</span><div class="timeline-text">HKDF derives an AES-256 key from the shared secret</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Step 3</span><div class="timeline-text">AES-256-GCM encrypts the actual file data</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Step 4</span><div class="timeline-text">Package: KEM ciphertext + salt + nonce + encrypted data</div></div>
+                </div>
+              </div>
+              <div class="edu-meta">
+                <span class="edu-tag pro">Best of both worlds</span>
+                <span class="edu-tag">Industry standard</span>
+              </div>
+            </div>
+
+            <!-- Why Not Just Public Key Encrypt Everything? -->
+            <div class="edu-card">
+              <div class="edu-card-header">
+                <div class="edu-card-icon">❓</div>
+                <div>
+                  <div class="edu-card-title">Why Not Encrypt Everything with Public Keys?</div>
+                  <div class="edu-card-subtitle">The efficiency problem</div>
+                </div>
+              </div>
+              <div class="edu-card-body">
+                <p>Public-key encryption is <strong>slow</strong> — often 1000x slower than symmetric encryption like AES. It's also designed for small data (a few hundred bytes).</p>
+                <p>Encrypting a 1GB file directly with public-key crypto would take forever and might not even work. Instead, we use the fast symmetric cipher (AES) for the data and only use the slow public-key crypto to protect the small symmetric key.</p>
+                <div class="edu-highlight">
+                  <strong>Result:</strong> Near-symmetric-speed encryption with the convenience of public keys. Only the recipient's private key can unlock it!
+                </div>
+              </div>
+              <div class="edu-meta">
+                <span class="edu-tag">Performance</span>
+                <span class="edu-tag pro">Practical</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIGN/VERIFY -->
+      <div class="panel" id="panel-sign">
+        <div style="max-width:800px">
+          <div class="card" style="margin-bottom:2rem">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Sign Message</div>
+                <div class="card-sub">ML-DSA-65 Digital Signature</div>
+              </div>
+            </div>
+
+            <textarea class="input textarea" id="sign-msg" placeholder="Enter message to sign..."></textarea>
+
+            <div class="input-group">
+              <div class="input-label">Your ML-DSA-65 Secret Key (hex)</div>
+              <input class="input" id="sign-sk" placeholder="Paste 4032-byte secret key...">
+            </div>
+
+            <button class="btn magenta" onclick="signMessage()">✍️ Sign Message</button>
+
+            <div class="sig-out" id="sig-out">
+              <div class="sig-label">Signature <span id="sig-sz"></span></div>
+              <div class="sig-val" id="sig-val"></div>
+              <button class="result-btn" style="margin-top:0.75rem;background:var(--accent-magenta)" onclick="copyEl('sig-val')">Copy Signature</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Verify Signature</div>
+                <div class="card-sub">Confirm message authenticity</div>
+              </div>
+            </div>
+
+            <textarea class="input textarea" id="ver-msg" placeholder="Enter original message..."></textarea>
+
+            <div class="input-group">
+              <div class="input-label">Signature (hex)</div>
+              <input class="input" id="ver-sig" placeholder="Paste signature...">
+            </div>
+
+            <div class="input-group">
+              <div class="input-label">Signer's ML-DSA-65 Public Key (hex)</div>
+              <input class="input" id="ver-pk" placeholder="Paste 1952-byte public key...">
+            </div>
+
+            <button class="btn" onclick="verifyMessage()">✓ Verify Signature</button>
+
+            <div class="result" id="ver-result">
+              <div class="result-head">
+                <div class="result-icon" id="ver-icon">✓</div>
+                <div class="result-title" id="ver-title">Signature Valid</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EDUCATION SECTION FOR SIGNATURES -->
+        <div class="education-section">
+          <div class="edu-header">
+            <h2>📚 Understanding <span>Digital Signatures</span></h2>
+            <p>How cryptography proves authenticity and prevents forgery.</p>
+          </div>
+
+          <div class="edu-grid">
+            <!-- What is a Digital Signature? -->
+            <div class="edu-card">
+              <div class="edu-card-header">
+                <div class="edu-card-icon">✍️</div>
+                <div>
+                  <div class="edu-card-title">What is a Digital Signature?</div>
+                  <div class="edu-card-subtitle">The electronic equivalent of signing a document</div>
+                </div>
+              </div>
+              <div class="edu-card-body">
+                <p>A digital signature is a mathematical proof that a message came from a specific person and hasn't been altered. Unlike a handwritten signature, it's virtually impossible to forge.</p>
+                <p><strong>It provides three guarantees:</strong></p>
+                <p>1. <strong>Authentication</strong> — proves who sent it<br>
+                   2. <strong>Integrity</strong> — proves it wasn't modified<br>
+                   3. <strong>Non-repudiation</strong> — sender can't deny sending it</p>
+              </div>
+              <div class="edu-meta">
+                <span class="edu-tag year">1976</span>
+                <span class="edu-tag">Diffie-Hellman paper</span>
+              </div>
+            </div>
+
+            <!-- How Signing Works -->
+            <div class="edu-card">
+              <div class="edu-card-header">
+                <div class="edu-card-icon">📝</div>
+                <div>
+                  <div class="edu-card-title">How Signing Works</div>
+                  <div class="edu-card-subtitle">The mechanics of creating a signature</div>
+                </div>
+              </div>
+              <div class="edu-card-body">
+                <div class="timeline">
+                  <div class="timeline-item"><span class="timeline-year">Step 1</span><div class="timeline-text">You write a message</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Step 2</span><div class="timeline-text">Your private key + message → signature algorithm</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Step 3</span><div class="timeline-text">Out comes a unique signature (looks like random data)</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Step 4</span><div class="timeline-text">Send message + signature to recipient</div></div>
+                </div>
+                <div class="edu-highlight">
+                  <strong>Key insight:</strong> The signature is tied to BOTH the message AND your private key. Change one word, and the signature becomes invalid.
+                </div>
+              </div>
+            </div>
+
+            <!-- How Verification Works -->
+            <div class="edu-card">
+              <div class="edu-card-header">
+                <div class="edu-card-icon">✅</div>
+                <div>
+                  <div class="edu-card-title">How Verification Works</div>
+                  <div class="edu-card-subtitle">Checking if a signature is valid</div>
+                </div>
+              </div>
+              <div class="edu-card-body">
+                <p>Anyone with your <strong>public key</strong> can verify your signature — they don't need your private key!</p>
+                <div class="timeline">
+                  <div class="timeline-item"><span class="timeline-year">Input</span><div class="timeline-text">Message + Signature + Signer's public key</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Process</span><div class="timeline-text">Verification algorithm checks mathematical relationship</div></div>
+                  <div class="timeline-item"><span class="timeline-year">Output</span><div class="timeline-text">Valid ✓ or Invalid ✗</div></div>
+                </div>
+                <p style="margin-top:0.75rem">If someone changes even one character of the message, or if the signature was made with a different key, verification fails.</p>
+              </div>
+            </div>
+
+            <!-- Signing vs Encryption -->
+            <div class="edu-card">
+              <div class="edu-card-header">
+                <div class="edu-card-icon">🔀</div>
+                <div>
+                  <div class="edu-card-title">Signing vs. Encryption</div>
+                  <div class="edu-card-subtitle">They solve different problems</div>
+                </div>
+              </div>
+              <div class="edu-card-body">
+                <div class="edu-comparison">
+                  <div class="edu-comp-col">
+                    <h4 style="color:var(--accent-magenta)">Signing</h4>
+                    <ul>
+                      <li>Proves who sent it</li>
+                      <li>Proves it wasn't modified</li>
+                      <li>Message stays readable</li>
+                      <li>Uses YOUR private key</li>
+                    </ul>
+                  </div>
+                  <div class="edu-comp-col">
+                    <h4 style="color:var(--accent-cyan)">Encryption</h4>
+                    <ul>
+                      <li>Hides the message content</li>
+                      <li>Only recipient can read</li>
+                      <li>Uses THEIR public key</li>
+                      <li>Doesn't prove sender</li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="edu-highlight">
+                  <strong>Best practice:</strong> For sensitive communications, do BOTH — encrypt for privacy, then sign to prove authenticity.
+                </div>
+              </div>
+            </div>
+
+            <!-- Real World Uses -->
+            <div class="edu-card">
+              <div class="edu-card-header">
+                <div class="edu-card-icon">🌍</div>
+                <div>
+                  <div class="edu-card-title">Real-World Uses of Digital Signatures</div>
+                  <div class="edu-card-subtitle">They're everywhere</div>
+                </div>
+              </div>
+              <div class="edu-card-body">
+                <p><strong>Software updates:</strong> Your phone verifies that iOS/Android updates really come from Apple/Google.</p>
+                <p><strong>HTTPS/TLS:</strong> Websites prove their identity to your browser using certificates signed by trusted authorities.</p>
+                <p><strong>Cryptocurrency:</strong> Bitcoin transactions are signed to prove you own the coins you're spending.</p>
+                <p><strong>Legal documents:</strong> DocuSign and similar services use digital signatures for contracts.</p>
+                <p><strong>Email:</strong> S/MIME and PGP let you sign emails to prove authorship.</p>
+              </div>
+              <div class="edu-meta">
+                <span class="edu-tag pro">Ubiquitous</span>
+                <span class="edu-tag">Critical infrastructure</span>
+              </div>
+            </div>
+
+            <!-- Why Post-Quantum Signatures? -->
+            <div class="edu-card">
+              <div class="edu-card-header">
+                <div class="edu-card-icon">⚠️</div>
+                <div>
+                  <div class="edu-card-title">Why Post-Quantum Signatures Matter</div>
+                  <div class="edu-card-subtitle">The long-term threat</div>
+                </div>
+              </div>
+              <div class="edu-card-body">
+                <p>Current signature algorithms (RSA, ECDSA, EdDSA) will be broken by quantum computers. This matters even for signatures created TODAY:</p>
+                <div class="edu-highlight">
+                  <strong>The threat:</strong> An attacker could keep a signed document, then later (when quantum computers exist) forge a "backdated" signature. They could claim you signed something you never signed.
+                </div>
+                <p>For long-lived signatures (legal contracts, property records, code signing), we need post-quantum signatures NOW — not just when quantum computers arrive.</p>
+              </div>
+              <div class="edu-meta">
+                <span class="edu-tag con">Future threat</span>
+                <span class="edu-tag pro">ML-DSA is the solution</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { XWing } from 'https://esm.sh/@noble/post-quantum@0.5.2/hybrid.js';
+    import { ml_dsa65 } from 'https://esm.sh/@noble/post-quantum@0.5.2/ml-dsa.js';
+
+    window.XWing = XWing;
+    window.ml_dsa65 = ml_dsa65;
+
+    let encFileData = null, encFileName = '';
+    let decFileText = null;
+    let encryptedPackage = null;
+    let decryptedBlob = null, decryptedName = '';
+
+    const $ = id => document.getElementById(id);
+    const toHex = b => Array.from(b, x => x.toString(16).padStart(2, '0')).join('');
+    const fromHex = h => new Uint8Array(h.match(/.{1,2}/g).map(x => parseInt(x, 16)));
+    const fmtBytes = b => b < 1024 ? b + ' B' : b < 1048576 ? (b/1024).toFixed(1) + ' KB' : (b/1048576).toFixed(2) + ' MB';
+    
+    const toast = (msg, isError = false) => {
+      const t = $('toast');
+      t.textContent = msg;
+      t.classList.toggle('error', isError);
+      t.classList.add('visible');
+      setTimeout(() => t.classList.remove('visible'), 4000);
+    };
+
+    async function sha256(data) {
+      const hash = await crypto.subtle.digest('SHA-256', data);
+      return new Uint8Array(hash);
+    }
+
+    async function hkdfDerive(sharedSecret, salt, info, keyLength = 32) {
+      const keyMaterial = await crypto.subtle.importKey('raw', sharedSecret, 'HKDF', false, ['deriveBits']);
+      const derivedBits = await crypto.subtle.deriveBits(
+        { name: 'HKDF', hash: 'SHA-256', salt: salt, info: new TextEncoder().encode(info) },
+        keyMaterial,
+        keyLength * 8
+      );
+      return new Uint8Array(derivedBits);
+    }
+
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        $(`panel-${tab.dataset.tab}`).classList.add('active');
+      });
+    });
+
+    window.genXWing = async () => {
+      const btn = $('xwing-btn');
+      btn.disabled = true;
+      btn.textContent = 'Generating...';
+      try {
+        const t0 = performance.now();
+        const { secretKey, publicKey } = XWing.keygen();
+        const ms = (performance.now() - t0).toFixed(1);
+        $('xwing-pk').textContent = toHex(publicKey);
+        $('xwing-sk').textContent = toHex(secretKey);
+        $('xwing-pk-sz').textContent = `(${publicKey.length} bytes)`;
+        $('xwing-sk-sz').textContent = `(${secretKey.length} bytes)`;
+        $('xwing-stats').innerHTML = `
+          <div class="stat"><div class="stat-val">${ms}ms</div><div class="stat-label">Keygen</div></div>
+          <div class="stat"><div class="stat-val">${publicKey.length}</div><div class="stat-label">PK bytes</div></div>
+          <div class="stat"><div class="stat-val">${secretKey.length}</div><div class="stat-label">SK bytes</div></div>
+          <div class="stat"><div class="stat-val">X-Wing</div><div class="stat-label">Algorithm</div></div>
+        `;
+        $('xwing-keys').classList.add('visible');
+        toast(`X-Wing keypair generated in ${ms}ms`);
+      } catch (e) { toast('Error: ' + e.message, true); console.error(e); }
+      btn.disabled = false;
+      btn.textContent = 'Generate X-Wing Keypair';
+    };
+
+    window.genDSA = async () => {
+      const btn = $('dsa-btn');
+      btn.disabled = true;
+      btn.textContent = 'Generating...';
+      try {
+        const t0 = performance.now();
+        const { secretKey, publicKey } = ml_dsa65.keygen();
+        const ms = (performance.now() - t0).toFixed(1);
+        $('dsa-pk').textContent = toHex(publicKey);
+        $('dsa-sk').textContent = toHex(secretKey);
+        $('dsa-pk-sz').textContent = `(${publicKey.length} bytes)`;
+        $('dsa-sk-sz').textContent = `(${secretKey.length} bytes)`;
+        $('dsa-stats').innerHTML = `
+          <div class="stat"><div class="stat-val">${ms}ms</div><div class="stat-label">Keygen</div></div>
+          <div class="stat"><div class="stat-val">${publicKey.length}</div><div class="stat-label">PK bytes</div></div>
+          <div class="stat"><div class="stat-val">${secretKey.length}</div><div class="stat-label">SK bytes</div></div>
+          <div class="stat"><div class="stat-val">ML-DSA-65</div><div class="stat-label">Algorithm</div></div>
+        `;
+        $('dsa-keys').classList.add('visible');
+        toast(`ML-DSA-65 keypair generated in ${ms}ms`);
+      } catch (e) { toast('Error: ' + e.message, true); console.error(e); }
+      btn.disabled = false;
+      btn.textContent = 'Generate ML-DSA-65 Keypair';
+    };
+
+    $('enc-file').addEventListener('change', async function() {
+      if (!this.files.length) return;
+      const f = this.files[0];
+      encFileName = f.name;
+      encFileData = new Uint8Array(await f.arrayBuffer());
+      $('enc-fname').textContent = f.name;
+      $('enc-fsize').textContent = fmtBytes(f.size);
+      $('enc-finfo').classList.add('visible');
+      $('enc-drop').style.display = 'none';
+      checkEncBtn();
+    });
+
+    window.clearEncFile = () => {
+      encFileData = null; encFileName = '';
+      $('enc-finfo').classList.remove('visible');
+      $('enc-drop').style.display = '';
+      $('enc-file').value = '';
+      checkEncBtn();
+    };
+
+    $('enc-pk').addEventListener('input', checkEncBtn);
+    function checkEncBtn() {
+      const hasFile = encFileData !== null;
+      const hasKey = $('enc-pk').value.trim().length === 2432;
+      $('enc-btn').disabled = !(hasFile && hasKey);
+    }
+
+    $('dec-file').addEventListener('change', async function() {
+      if (!this.files.length) return;
+      const f = this.files[0];
+      decFileText = await f.text();
+      $('dec-fname').textContent = f.name;
+      $('dec-fsize').textContent = fmtBytes(f.size);
+      $('dec-finfo').classList.add('visible');
+      $('dec-drop').style.display = 'none';
+      checkDecBtn();
+    });
+
+    window.clearDecFile = () => {
+      decFileText = null;
+      $('dec-finfo').classList.remove('visible');
+      $('dec-drop').style.display = '';
+      $('dec-file').value = '';
+      checkDecBtn();
+    };
+
+    $('dec-sk').addEventListener('input', checkDecBtn);
+    function checkDecBtn() {
+      const hasFile = decFileText !== null;
+      const hasKey = $('dec-sk').value.trim().length === 64;
+      $('dec-btn').disabled = !(hasFile && hasKey);
+    }
+
+    window.encryptFile = async () => {
+      const prog = $('enc-prog'), result = $('enc-result');
+      prog.classList.add('visible');
+      result.classList.remove('visible');
+      const setProgress = (pct) => { $('enc-fill').style.width = pct + '%'; $('enc-pct').textContent = pct + '%'; };
+
+      try {
+        setProgress(10);
+        const recipientPk = fromHex($('enc-pk').value.trim());
+        if (recipientPk.length !== 1216) throw new Error('Invalid X-Wing public key (must be 1216 bytes)');
+        setProgress(20);
+        const { sharedSecret, cipherText } = XWing.encapsulate(recipientPk);
+        setProgress(40);
+        const hkdfSalt = crypto.getRandomValues(new Uint8Array(32));
+        const aesKeyBytes = await hkdfDerive(sharedSecret, hkdfSalt, 'QuantumVault-v1-AES256GCM', 32);
+        setProgress(50);
+        const aesKey = await crypto.subtle.importKey('raw', aesKeyBytes, 'AES-GCM', false, ['encrypt']);
+        const aesNonce = crypto.getRandomValues(new Uint8Array(12));
+        setProgress(60);
+        const plaintextHash = await sha256(encFileData);
+        setProgress(70);
+        const aesCiphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: aesNonce }, aesKey, encFileData);
+        setProgress(90);
+        encryptedPackage = {
+          version: '2.0',
+          algorithm: 'X-Wing+HKDF-SHA256+AES-256-GCM',
+          kem: { name: 'X-Wing', ciphertext: toHex(cipherText) },
+          kdf: { name: 'HKDF-SHA256', salt: toHex(hkdfSalt), info: 'QuantumVault-v1-AES256GCM' },
+          aead: { name: 'AES-256-GCM', nonce: toHex(aesNonce), ciphertext: toHex(new Uint8Array(aesCiphertext)) },
+          metadata: { originalName: encFileName, originalSize: encFileData.length, plaintextHash: toHex(plaintextHash), encryptedAt: new Date().toISOString() }
+        };
+        setProgress(100);
+        setTimeout(() => { prog.classList.remove('visible'); result.classList.add('visible'); toast('File encrypted with X-Wing hybrid KEM'); }, 200);
+      } catch (e) { prog.classList.remove('visible'); toast('Encryption error: ' + e.message, true); console.error(e); }
+    };
+
+    window.decryptFile = async () => {
+      const prog = $('dec-prog'), result = $('dec-result');
+      prog.classList.add('visible');
+      result.classList.remove('visible', 'error');
+      const setProgress = (pct) => { $('dec-fill').style.width = pct + '%'; $('dec-pct').textContent = pct + '%'; };
+
+      try {
+        setProgress(10);
+        const pkg = JSON.parse(decFileText);
+        if (pkg.version !== '2.0' || pkg.algorithm !== 'X-Wing+HKDF-SHA256+AES-256-GCM') throw new Error('Unsupported file format');
+        setProgress(20);
+        const secretKey = fromHex($('dec-sk').value.trim());
+        if (secretKey.length !== 32) throw new Error('Invalid X-Wing secret key (must be 32 bytes)');
+        const kemCiphertext = fromHex(pkg.kem.ciphertext);
+        setProgress(30);
+        const sharedSecret = XWing.decapsulate(kemCiphertext, secretKey);
+        setProgress(50);
+        const hkdfSalt = fromHex(pkg.kdf.salt);
+        const aesKeyBytes = await hkdfDerive(sharedSecret, hkdfSalt, pkg.kdf.info, 32);
+        const aesKey = await crypto.subtle.importKey('raw', aesKeyBytes, 'AES-GCM', false, ['decrypt']);
+        setProgress(60);
+        const aesNonce = fromHex(pkg.aead.nonce);
+        const aesCiphertext = fromHex(pkg.aead.ciphertext);
+        setProgress(70);
+        const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: aesNonce }, aesKey, aesCiphertext);
+        setProgress(85);
+        if (pkg.metadata.plaintextHash) {
+          const computedHash = await sha256(new Uint8Array(plaintext));
+          if (toHex(computedHash) !== pkg.metadata.plaintextHash) throw new Error('Integrity check failed');
+        }
+        setProgress(100);
+        decryptedBlob = new Blob([plaintext]);
+        decryptedName = pkg.metadata.originalName || 'decrypted_file';
+        setTimeout(() => { prog.classList.remove('visible'); result.classList.add('visible'); $('dec-icon').textContent = '✓'; $('dec-title').textContent = 'Decrypted & Verified'; toast('File decrypted and integrity verified'); }, 200);
+      } catch (e) { prog.classList.remove('visible'); result.classList.add('visible', 'error'); $('dec-icon').textContent = '✕'; $('dec-title').textContent = 'Decryption Failed'; toast('Error: ' + e.message, true); console.error(e); }
+    };
+
+    window.downloadEnc = () => { const blob = new Blob([JSON.stringify(encryptedPackage, null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = encFileName + '.pqenc'; a.click(); URL.revokeObjectURL(a.href); };
+    window.downloadDec = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(decryptedBlob); a.download = decryptedName; a.click(); URL.revokeObjectURL(a.href); };
+
+    window.signMessage = async () => {
+      const msg = $('sign-msg').value, skHex = $('sign-sk').value.trim();
+      if (!msg) { toast('Enter a message to sign', true); return; }
+      if (skHex.length !== 8064) { toast('Invalid ML-DSA-65 secret key (must be 4032 bytes)', true); return; }
+      try {
+        const secretKey = fromHex(skHex);
+        const msgBytes = new TextEncoder().encode(msg);
+        const t0 = performance.now();
+        const signature = ml_dsa65.sign(secretKey, msgBytes);
+        const ms = (performance.now() - t0).toFixed(1);
+        $('sig-val').textContent = toHex(signature);
+        $('sig-sz').textContent = `(${signature.length} bytes, ${ms}ms)`;
+        $('sig-out').classList.add('visible');
+        toast(`Signed with ML-DSA-65 in ${ms}ms`);
+      } catch (e) { toast('Signing error: ' + e.message, true); console.error(e); }
+    };
+
+    window.verifyMessage = async () => {
+      const msg = $('ver-msg').value, sigHex = $('ver-sig').value.trim(), pkHex = $('ver-pk').value.trim();
+      if (!msg || !sigHex || !pkHex) { toast('Fill all fields', true); return; }
+      if (pkHex.length !== 3904) { toast('Invalid ML-DSA-65 public key (must be 1952 bytes)', true); return; }
+      const result = $('ver-result');
+      result.classList.remove('visible', 'error');
+      try {
+        const publicKey = fromHex(pkHex), signature = fromHex(sigHex);
+        const msgBytes = new TextEncoder().encode(msg);
+        const t0 = performance.now();
+        const valid = ml_dsa65.verify(publicKey, msgBytes, signature);
+        const ms = (performance.now() - t0).toFixed(1);
+        result.classList.add('visible');
+        if (valid) { $('ver-icon').textContent = '✓'; $('ver-title').textContent = `Signature Valid (${ms}ms)`; toast('Signature verified!'); }
+        else { result.classList.add('error'); $('ver-icon').textContent = '✕'; $('ver-title').textContent = 'Invalid Signature'; toast('Signature verification failed', true); }
+      } catch (e) { result.classList.add('visible', 'error'); $('ver-icon').textContent = '✕'; $('ver-title').textContent = 'Verification Error'; toast('Error: ' + e.message, true); console.error(e); }
+    };
+
+    window.copyEl = id => { navigator.clipboard.writeText($(id).textContent); toast('Copied to clipboard'); };
+
+    ['enc-drop', 'dec-drop'].forEach(id => {
+      const zone = $(id);
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+      zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag'); const input = $(id.replace('drop', 'file')); input.files = e.dataTransfer.files; input.dispatchEvent(new Event('change')); });
+    });
+
+    $('loading').classList.add('hidden');
+    console.log('✅ Production cryptography loaded: X-Wing + ML-DSA-65');
+  </script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 {
   "name": "Quantum Vault",
   "short_name": "QVault",
-  "description": "Production-grade post-quantum encryption using X-Wing and ML-DSA-65",
+  "description": "Experimental post-quantum encryption demo using X-Wing and ML-DSA-65 — not audited for production use",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0f",

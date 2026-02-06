@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QUANTUM VAULT | Production-Grade Post-Quantum Encryption</title>
-  <meta name="description" content="Production-grade post-quantum encryption using X-Wing (ML-KEM-768 + X25519) and ML-DSA-65 digital signatures. Client-side, zero-server cryptography.">
+  <title>QUANTUM VAULT | Experimental Post-Quantum Encryption Demo</title>
+  <meta name="description" content="Experimental post-quantum encryption demo using X-Wing (ML-KEM-768 + X25519) and ML-DSA-65 digital signatures. Educational client-side cryptography — not audited for production use.">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
   <meta name="author" content="ERRERLabs">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="QUANTUM VAULT | Post-Quantum Encryption">
-  <meta property="og:description" content="Production-grade post-quantum encryption using X-Wing hybrid KEM and ML-DSA-65 digital signatures. All cryptography runs client-side.">
+  <meta property="og:title" content="QUANTUM VAULT | Experimental Post-Quantum Encryption Demo">
+  <meta property="og:description" content="Experimental post-quantum encryption demo using X-Wing hybrid KEM and ML-DSA-65 digital signatures. Educational — not audited for production use.">
   <meta property="og:site_name" content="Quantum Vault">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="QUANTUM VAULT | Post-Quantum Encryption">
-  <meta name="twitter:description" content="Production-grade post-quantum encryption using X-Wing hybrid KEM and ML-DSA-65 digital signatures.">
+  <meta name="twitter:title" content="QUANTUM VAULT | Experimental Post-Quantum Encryption Demo">
+  <meta name="twitter:description" content="Experimental post-quantum encryption demo using X-Wing hybrid KEM and ML-DSA-65. Educational — not audited for production use.">
 
   <!-- Resource Hints -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -60,6 +60,12 @@
     .badge.gold { border-color: var(--accent-gold); color: var(--accent-gold); background: rgba(255,215,0,0.1); }
     .badge.green { border-color: var(--accent-green); color: var(--accent-green); }
     .badge.violet { border-color: var(--accent-violet); color: var(--accent-violet); }
+    .badge.orange { border-color: var(--accent-orange); color: var(--accent-orange); background: rgba(255,107,53,0.1); }
+
+    .disclaimer-banner { background: rgba(255,107,53,0.12); border: 1px solid var(--accent-orange); padding: 1rem 1.5rem; margin-bottom: 1.5rem; font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6; }
+    .disclaimer-banner strong { color: var(--accent-orange); display: block; margin-bottom: 0.3rem; font-size: 0.85rem; }
+    .disclaimer-banner ul { margin: 0.5rem 0 0 1.2rem; }
+    .disclaimer-banner li { margin-bottom: 0.25rem; }
 
     .loading { position: fixed; inset: 0; background: var(--bg-deep); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; transition: opacity 0.5s; }
     .loading.hidden { opacity: 0; pointer-events: none; }
@@ -225,7 +231,7 @@
   <div class="bg-grid"></div>
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <div class="loading-text">Initializing Production Cryptography...</div>
+    <div class="loading-text">Initializing Cryptography Demo...</div>
     <div class="loading-sub">Loading X-Wing (ML-KEM-768 + X25519) &amp; ML-DSA</div>
   </div>
 
@@ -236,13 +242,26 @@
         <div class="logo-text">QUANTUM<span>VAULT</span></div>
       </div>
       <div class="badges">
-        <div class="badge gold">Production Grade</div>
+        <div class="badge orange">Experimental Demo</div>
         <div class="badge green">X-Wing Hybrid KEM</div>
-        <div class="badge violet">IETF Draft Standard</div>
+        <div class="badge violet">IETF Draft (Not Final)</div>
       </div>
     </header>
 
     <main>
+      <div class="disclaimer-banner">
+        <strong>Experimental Demo — Not Audited for Production Use</strong>
+        This tool demonstrates real post-quantum cryptographic algorithms (X-Wing, ML-DSA-65) running client-side using the <code>@noble/post-quantum</code> library (v0.5.2, pre-1.0). The cryptography is functional, but be aware of the following limitations before relying on it for sensitive data:
+        <ul>
+          <li><strong>No independent security audit</strong> has been performed on this application.</li>
+          <li><strong>X-Wing is an IETF draft</strong>, not a finalized standard. The specification may change.</li>
+          <li><strong>Key handling is not production-safe:</strong> secret keys are displayed in the DOM (visible to browser extensions and screen sharing), copied to the system clipboard (accessible to other apps), and cannot be securely erased from JavaScript memory.</li>
+          <li><strong>Crypto library loaded from CDN</strong> (esm.sh) without Subresource Integrity (SRI) hashes — a compromised CDN could serve malicious code.</li>
+          <li><strong>Encrypted file metadata is not encrypted:</strong> the .pqenc format stores the original filename, file size, and timestamp in plaintext.</li>
+          <li><strong>No key management:</strong> you must securely store your own keys outside this tool. There is no built-in key storage or backup.</li>
+        </ul>
+      </div>
+
       <nav class="tabs">
         <button class="tab active" data-tab="keygen">Generate Keys</button>
         <button class="tab" data-tab="encrypt">Encrypt / Decrypt</button>
@@ -251,6 +270,10 @@
 
       <!-- KEY GENERATION -->
       <div class="panel active" id="panel-keygen">
+        <div class="warning-box">
+          <strong>Key Security Warning</strong>
+          Generated keys are displayed in the page DOM and are accessible to browser extensions, screen capture, and developer tools. Copying keys sends them to your system clipboard, which may be readable by other applications. JavaScript cannot securely erase keys from memory. Store exported keys in a secure location outside your browser.
+        </div>
         <div class="grid">
           <div class="card">
             <div class="card-head">
@@ -262,8 +285,9 @@
             </div>
             
             <div class="info-box">
-              <strong>X-Wing</strong> combines <code>ML-KEM-768</code> (post-quantum) with <code>X25519</code> (classical) 
+              <strong>X-Wing</strong> combines <code>ML-KEM-768</code> (post-quantum) with <code>X25519</code> (classical)
               using SHA3-256 as the combiner. Secure if <em>either</em> algorithm remains secure.
+              <br><br><strong>Note:</strong> X-Wing is an <em>IETF draft</em>, not a finalized standard. The specification may change before ratification.
             </div>
 
             <div class="security-features">
@@ -521,6 +545,10 @@
 
       <!-- ENCRYPT/DECRYPT -->
       <div class="panel" id="panel-encrypt">
+        <div class="warning-box">
+          <strong>Metadata Privacy Notice</strong>
+          The .pqenc encrypted file format stores the original filename, file size, and encryption timestamp in <em>plaintext</em> alongside the encrypted data. Only the file contents are encrypted. An observer who obtains the .pqenc file can see this metadata without the decryption key.
+        </div>
         <div class="grid">
           <div class="card">
             <div class="card-head">

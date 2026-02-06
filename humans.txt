@@ -1,5 +1,5 @@
 /* TEAM */
-Project: Quantum Vault — Production-Grade Post-Quantum Encryption
+Project: Quantum Vault — Experimental Post-Quantum Encryption Demo
 Organization: ERRERLabs
 GitHub: https://github.com/kmay89/crypto
 
@@ -15,6 +15,11 @@ Analytics: None
 Tracking: None
 Data Collection: None — all cryptographic operations run entirely
   in the browser. No keys, files, or data ever leave your device.
+
+/* STATUS */
+This is an experimental / educational demo.
+It has NOT been independently security-audited.
+Do not rely on it for high-stakes encryption without professional review.
 
 /* SECURITY */
 CSP: Enforced via HTTP headers (script-src 'self' https://esm.sh)

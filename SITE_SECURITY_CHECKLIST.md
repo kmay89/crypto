@@ -75,34 +75,41 @@ grep -rn "password\|secret\|api.key\|token\|credential\|private.key\|sk_live\|pk
 
 ---
 
-## Compliance Framework Alignment
+## Compliance Framework Notes
 
-### HIPAA (where applicable)
-| Control | Implementation |
-|---------|---------------|
-| Audit Controls (§164.312(b)) | Client-side only; no audit trail needed |
-| Access Controls (§164.312(a)(1)) | User-controlled key management |
+> **Important disclaimer:** Compliance with HIPAA, GDPR, ISO 27001, SOC 2, and similar
+> frameworks requires organization-wide programs, policies, audits, and certifications.
+> A single client-side tool **cannot be compliant** with these frameworks on its own.
+> The notes below describe how specific *technical controls* in Quantum Vault relate to
+> controls in these frameworks — they do **not** constitute compliance claims.
+> No independent security audit has been performed on this application.
+
+### HIPAA — Related Technical Controls
+| Control | How this tool relates |
+|---------|---------------------|
+| Audit Controls (§164.312(b)) | Client-side only; no server audit trail exists (limitation, not a feature) |
+| Access Controls (§164.312(a)(1)) | User-managed keys; no access control enforcement |
 | Integrity (§164.312(c)(1)) | AES-GCM authentication + SHA-256 hash verification |
-| Transmission Security (§164.312(e)(1)) | HSTS + upgrade-insecure-requests enforces TLS |
+| Transmission Security (§164.312(e)(1)) | HSTS + upgrade-insecure-requests enforces TLS for page delivery |
 
-### GDPR
-| Principle | Implementation |
-|-----------|---------------|
+### GDPR — Related Technical Controls
+| Principle | How this tool relates |
+|-----------|---------------------|
 | Data Minimization | Zero data collection, zero server processing |
 | Purpose Limitation | Encryption tool only; no secondary use |
-| Accountability | Open-source, auditable code |
-| Right to Erasure | Nothing to erase — no data stored |
+| Accountability | Open-source code (not independently audited) |
+| Right to Erasure | Nothing stored server-side to erase |
 
-### ISO 27001
-| Control | Implementation |
-|---------|---------------|
-| A.10 Cryptography | NIST FIPS 203/204 algorithms, Web Crypto API |
+### ISO 27001 — Related Technical Controls
+| Control | How this tool relates |
+|---------|---------------------|
+| A.10 Cryptography | Uses NIST FIPS 203/204 algorithms via Web Crypto API |
 | A.12 Operations Security | CSP, security headers, manual audit checklists |
-| A.14 System Acquisition | Pinned dependency versions, single CDN source |
+| A.14 System Acquisition | Pinned dependency versions, single CDN source (no SRI) |
 
-### SOC 2
-| Criteria | Implementation |
-|----------|---------------|
+### SOC 2 — Related Technical Controls
+| Criteria | How this tool relates |
+|----------|---------------------|
 | Security | Defense-in-depth headers, CSP, HSTS |
 | Availability | Static site architecture (CDN-friendly) |
 | Confidentiality | Client-side encryption, zero server storage |
@@ -158,3 +165,8 @@ These words create liability risk. Use qualified alternatives:
 - Cryptographic implementations should note they follow published standards
 - Security claims should reference specific standards (FIPS 203, FIPS 204)
 - Post-quantum claims should note "based on current mathematical understanding"
+- This application has not been independently audited and should not be used for high-stakes encryption without professional review
+- X-Wing is an IETF draft, not a finalized standard
+- The @noble/post-quantum library is pre-1.0 (v0.5.2)
+- Key material displayed in the DOM is not protected from browser extensions or screen capture
+- The .pqenc format leaks metadata (filename, size, timestamp) in plaintext

@@ -1,0 +1,6 @@
+# ============================================================
+#  Quantum Vault — Redirect Rules (Netlify / Cloudflare Pages)
+# ============================================================
+
+# RFC 9116: security.txt canonical location rewrite
+/security.txt    /.well-known/security.txt    200
